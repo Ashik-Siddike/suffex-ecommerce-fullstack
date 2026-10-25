@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { CartProvider, useCart } from "./context/CartContext";
+import { CartProvider } from "./context/CartContext";
+import { useDispatch, useSelector } from "react-redux";
+import { selectToastMessage, clearToast } from "./redux/slices/cartSlice";
 import { AuthProvider } from "./context/AuthContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import Navbar from "./components/Navbar";
@@ -36,16 +38,26 @@ function ScrollToTop() {
  * Renders header, footer, toast notifications, drawers, and active routes
  */
 function AppContent() {
-  const { toastMessage } = useCart();
+  const dispatch = useDispatch();
+  const toastMessage = useSelector(selectToastMessage);
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => {
+        dispatch(clearToast());
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage, dispatch]);
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-100 flex flex-col font-sans relative selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans relative selection:bg-cyan-500/20 selection:text-cyan-800">
       <ScrollToTop />
 
       {/* Global Toast Notification Banner */}
       {toastMessage && (
-        <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 bg-[#070b14]/95 backdrop-blur-xl text-white px-5 py-3.5 rounded-2xl shadow-2xl shadow-cyan-950/50 flex items-center gap-3 border border-cyan-500/40 text-xs font-semibold animate-bounce max-w-sm">
-          <div className="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+        <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 bg-white/95 backdrop-blur-xl text-slate-900 px-5 py-3.5 rounded-2xl shadow-2xl shadow-slate-900/10 flex items-center gap-3 border border-slate-200 text-xs font-semibold animate-bounce max-w-sm">
+          <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0 shadow-sm">
             ✓
           </div>
           <span className="leading-snug">{toastMessage}</span>

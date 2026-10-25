@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { useDispatch, useSelector } from "react-redux";
+import { selectCartCount, openCart } from "../redux/slices/cartSlice";
 import { useWishlist } from "../context/WishlistContext";
 import { Home, Sparkles, PackageCheck, Heart, ShoppingCart } from "lucide-react";
 
@@ -7,14 +8,15 @@ export default function BottomNav({
   cartCount: propCartCount,
   onOpenCart: propOnOpenCart,
 }) {
-  const cartContext = useCart();
+  const dispatch = useDispatch();
+  const reduxCartCount = useSelector(selectCartCount);
   const { wishlistCount } = useWishlist();
-  const effectiveCount = propCartCount !== undefined ? propCartCount : cartContext.cartCount;
-  const handleOpenCart = propOnOpenCart || cartContext.openCart;
+  const effectiveCount = propCartCount !== undefined ? propCartCount : reduxCartCount;
+  const handleOpenCart = propOnOpenCart || (() => dispatch(openCart()));
 
   return (
     <nav
-      className="md:hidden fixed bottom-3 inset-x-3 z-40 max-w-md mx-auto bg-[#070b16]/95 backdrop-blur-2xl border border-white/[0.14] rounded-2xl shadow-2xl shadow-black/90 px-2 py-1.5 flex items-center justify-around select-none"
+      className="md:hidden fixed bottom-3 inset-x-3 z-40 max-w-md mx-auto bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-2xl shadow-xl shadow-slate-900/10 px-2 py-1.5 flex items-center justify-around select-none"
       aria-label="Mobile Navigation"
     >
       {/* Home */}
@@ -24,7 +26,7 @@ export default function BottomNav({
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={({ isActive }) =>
           `relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
-            isActive ? "text-cyan-400 font-bold" : "text-slate-400 hover:text-white"
+            isActive ? "text-cyan-600 font-bold" : "text-slate-500 hover:text-slate-900"
           }`
         }
       >
@@ -33,7 +35,7 @@ export default function BottomNav({
             <Home className={`w-4.5 h-4.5 transition-transform ${isActive ? "scale-110" : ""}`} />
             <span className="text-[10px] mt-0.5 font-['Outfit']">Home</span>
             {isActive && (
-              <span className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#38bdf8]" />
+              <span className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]" />
             )}
           </>
         )}
@@ -45,7 +47,7 @@ export default function BottomNav({
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={({ isActive }) =>
           `relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
-            isActive ? "text-cyan-400 font-bold" : "text-slate-400 hover:text-white"
+            isActive ? "text-cyan-600 font-bold" : "text-slate-500 hover:text-slate-900"
           }`
         }
       >
@@ -53,13 +55,13 @@ export default function BottomNav({
           <>
             <div className="relative">
               <Sparkles className={`w-4.5 h-4.5 transition-transform ${isActive ? "scale-110" : ""}`} />
-              <span className="absolute -top-1.5 -right-2 text-[8px] font-black font-mono bg-cyan-500 text-black px-1 py-0 rounded-full scale-90">
+              <span className="absolute -top-1.5 -right-2 text-[8px] font-black font-mono bg-cyan-600 text-white px-1 py-0 rounded-full scale-90">
                 HOT
               </span>
             </div>
             <span className="text-[10px] mt-0.5 font-['Outfit']">Store</span>
             {isActive && (
-              <span className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#38bdf8]" />
+              <span className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]" />
             )}
           </>
         )}
@@ -69,7 +71,7 @@ export default function BottomNav({
       <button
         type="button"
         onClick={handleOpenCart}
-        className="relative -mt-5 flex flex-col items-center justify-center p-2.5 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-xl shadow-cyan-950/70 border border-white/20 active:scale-90 transition-transform cursor-pointer"
+        className="relative -mt-5 flex flex-col items-center justify-center p-2.5 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white shadow-xl shadow-cyan-900/30 border border-white/50 active:scale-90 transition-transform cursor-pointer"
         aria-label="Open Shopping Cart"
       >
         <div className="relative">
@@ -88,7 +90,7 @@ export default function BottomNav({
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={({ isActive }) =>
           `relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
-            isActive ? "text-rose-400 font-bold" : "text-slate-400 hover:text-white"
+            isActive ? "text-rose-600 font-bold" : "text-slate-500 hover:text-slate-900"
           }`
         }
       >
@@ -104,7 +106,7 @@ export default function BottomNav({
             </div>
             <span className="text-[10px] mt-0.5 font-['Outfit']">Wishlist</span>
             {isActive && (
-              <span className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_8px_#f43f5e]" />
+              <span className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
             )}
           </>
         )}
@@ -116,7 +118,7 @@ export default function BottomNav({
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={({ isActive }) =>
           `relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
-            isActive ? "text-cyan-400 font-bold" : "text-slate-400 hover:text-white"
+            isActive ? "text-cyan-600 font-bold" : "text-slate-500 hover:text-slate-900"
           }`
         }
       >
@@ -125,7 +127,7 @@ export default function BottomNav({
             <PackageCheck className={`w-4.5 h-4.5 transition-transform ${isActive ? "scale-110" : ""}`} />
             <span className="text-[10px] mt-0.5 font-['Outfit']">Orders</span>
             {isActive && (
-              <span className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#38bdf8]" />
+              <span className="absolute -top-1 w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_#06b6d4]" />
             )}
           </>
         )}

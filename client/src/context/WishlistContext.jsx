@@ -49,7 +49,7 @@ export function WishlistProvider({ children }) {
             (item) => String(item.id).replace(/^prod-/, "") !== cleanId
           );
         } else {
-          if (showToast) showToast(`"${product.title}" saved to your wishlist! ❤️`);
+          if (showToast) showToast(`"${product.title}" saved to your wishlist.`);
           return [...prev, product];
         }
       });
@@ -95,7 +95,7 @@ export function WishlistProvider({ children }) {
         1
       );
       removeFromWishlist(product.id);
-      if (showToast) showToast(`Moved "${product.title}" directly to your cart! 🛍️`);
+      if (showToast) showToast(`Moved "${product.title}" directly to your cart.`);
     },
     [addToCart, removeFromWishlist, showToast]
   );

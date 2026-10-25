@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, removeFromCart, selectIsInCart } from "../redux/slices/cartSlice";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 import useProducts from "../hooks/useProducts";
 import ProductCard from "../components/ProductCard";
 import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import useDocumentTitle from "../hooks/useDocumentTitle";
-import ProductModal from "../components/ProductModal";
 import {
   Sparkles,
   ShoppingBag,
@@ -25,31 +28,151 @@ import {
   Tag,
   Zap,
   Search,
+  Watch,
+  Keyboard,
+  CreditCard,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Percent,
+  SlidersHorizontal,
+  Volume2,
+  Activity,
+  BatteryCharging,
   Eye,
-  PackageSearch,
+  Award,
 } from "lucide-react";
 
-export default function HomePage({
-  // Dynamic SEO Title
 
+// ========================================================
+// THUMBNAIL CAROUSEL STRIP (HOVER TRIGGERED)
+// ========================================================
+const FULL_THUMB_WIDTH = 140;
+const COLLAPSED_THUMB_WIDTH = 48;
+const THUMB_GAP = 6;
+
+function HeroThumbnails({ slides, activeSlide, onSelectSlide }) {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      let scrollPos = 0;
+      for (let i = 0; i < activeSlide; i++) {
+        scrollPos += COLLAPSED_THUMB_WIDTH + THUMB_GAP;
+      }
+      const containerWidth = scrollRef.current.offsetWidth || 1;
+      const centerOffset = containerWidth / 2 - FULL_THUMB_WIDTH / 2;
+      scrollPos -= centerOffset;
+
+      scrollRef.current.scrollTo({
+        left: Math.max(0, scrollPos),
+        behavior: "smooth",
+      });
+    }
+  }, [activeSlide]);
+
+  return (
+    <div
+      ref={scrollRef}
+      className="overflow-x-auto no-scrollbar py-1 px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      <div className="flex items-center gap-2 h-20 mx-auto" style={{ width: "fit-content" }}>
+        {slides.map((slide, idx) => {
+          const isSelected = idx === activeSlide;
+          return (
+            <motion.button
+              key={slide.id}
+              onClick={() => onSelectSlide(idx)}
+              onMouseEnter={() => onSelectSlide(idx)}
+              initial={false}
+              animate={{
+                width: isSelected ? FULL_THUMB_WIDTH : COLLAPSED_THUMB_WIDTH,
+              }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className={`relative shrink-0 h-full overflow-hidden rounded-2xl border transition-all cursor-pointer ${
+                isSelected
+                  ? "border-cyan-500 ring-2 ring-cyan-500/40 shadow-lg scale-[1.02]"
+                  : "border-slate-200 opacity-70 hover:opacity-100 hover:border-slate-300"
+              }`}
+              title={slide.title}
+            >
+              <img
+                src={slide.image}
+                alt={slide.title}
+                className="w-full h-full object-cover select-none pointer-events-none"
+                draggable={false}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-2 pointer-events-none">
+                {isSelected ? (
+                  <span className="text-[10px] font-bold text-cyan-300 truncate font-['Outfit'] block leading-tight">
+                    {slide.title}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-mono font-bold text-white/90 block text-center">
+                    0{idx + 1}
+                  </span>
+                )}
+              </div>
+            </motion.button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export default function HomePage({
   onNavigate,
   cart: propCart,
   onAddToCart: propAddToCart,
   onRemoveFromCart: propRemoveFromCart,
 }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const cartContext = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   const cart = propCart !== undefined ? propCart : cartContext.cart;
   const onAddToCart = propAddToCart || cartContext.addToCart;
   const onRemoveFromCart = propRemoveFromCart || cartContext.removeFromCart;
 
+  useDocumentTitle("Suffex E-Commerce | Binomo-Inspired Tech Experience");
+
   const [copiedCode, setCopiedCode] = useState(null);
-  const [activeSpotlight, setActiveSpotlight] = useState(0);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const [heroSearch, setHeroSearch] = useState("");
-  const [selectedProductId, setSelectedProductId] = useState(null);
-  useDocumentTitle("Next-Gen Tech & Flagship Devices");
   const [activeCatalogCategory, setActiveCatalogCategory] = useState("all");
+
+  // Live Flash Sale Countdown Timer (Deals of the day)
+  const [timeLeft, setTimeLeft] = useState({
+    hours: "08",
+    minutes: "42",
+    seconds: "15",
+  });
+
+  useEffect(() => {
+    const calculateTimeRemaining = () => {
+      const now = new Date();
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      const diffMs = Math.max(0, endOfDay.getTime() - now.getTime());
+
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+      setTimeLeft({
+        hours: String(hours).padStart(2, "0"),
+        minutes: String(minutes).padStart(2, "0"),
+        seconds: String(seconds).padStart(2, "0"),
+      });
+    };
+
+    calculateTimeRemaining();
+    const timerInterval = setInterval(calculateTimeRemaining, 1000);
+    return () => clearInterval(timerInterval);
+  }, []);
 
   const handleNavigation = (destination) => {
     if (onNavigate) {
@@ -73,7 +196,7 @@ export default function HomePage({
     }
   };
 
-  // Fetch live products for landing page catalog
+  // Fetch live products for landing page catalog (Most sold this week)
   const {
     products: catalogProducts,
     loading: catalogLoading,
@@ -85,11 +208,11 @@ export default function HomePage({
   });
 
   const catalogTabs = [
-    { id: "all", label: "🔥 All Trending" },
-    { id: "smartphones", label: "📱 Smartphones" },
-    { id: "laptops", label: "💻 Laptops & PC" },
-    { id: "audio", label: "🎧 Premium Audio" },
-    { id: "accessories", label: "⚡ Accessories" },
+    { id: "all", label: "All Items", icon: Sparkles },
+    { id: "smartphones", label: "Smartphones", icon: Smartphone },
+    { id: "laptops", label: "Laptops & PC", icon: Laptop },
+    { id: "audio", label: "Headphones & Audio", icon: Headphones },
+    { id: "accessories", label: "Smartwatch & Gear", icon: Watch },
   ];
 
   const handleCopyCode = (code) => {
@@ -110,632 +233,518 @@ export default function HomePage({
 
   const handleCategoryClick = (catId) => {
     setActiveCatalogCategory(catId);
-    const catalogEl = document.getElementById("featured-catalog");
+    const catalogEl = document.getElementById("most-sold-section");
     if (catalogEl) {
       catalogEl.scrollIntoView({ behavior: "smooth" });
     }
   };
 
-  const heroSpotlights = [
+  // Binomo-Style High-Impact Hero Slider
+  const heroSlides = [
     {
       id: 1,
-      category: "smartphones",
-      badge: "FLAGSHIP TITANIUM",
-      title: "Apple iPhone 13 Pro 256GB Sierra Blue",
-      tagline: "Aerospace Titanium • Super Retina XDR with ProMotion",
-      specs: ["A15 Bionic 5-Core GPU", "Super Retina XDR with ProMotion", "12MP Pro Camera System", "Ceramic Shield"],
+      badge: "Smart Technology",
+      badgeIcon: Smartphone,
+      title: "Stay Connected With Flagship Titanium",
+      subtitle: "Aerospace Titanium frame, Super Retina XDR with ProMotion, and official 1-year brand warranty.",
+      quote: "Top-notch performance and unrivaled battery endurance for everyday power users.",
       priceBDT: 105000,
       originalPriceBDT: 120000,
+      discount: "Save ৳15,000",
+      rating: 4.9,
+      reviews: "1,240 Verified Reviews",
+      image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=700&auto=format&fit=crop&q=80",
+      accentGlow: "from-cyan-500/20 via-blue-500/10 to-transparent",
+      accentColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30",
+      category: "smartphones",
+    },
+    {
+      id: 8,
+      badge: "Smart Sound",
+      badgeIcon: Headphones,
+      title: "Sound Without Limits: Studio Hi-Fi",
+      subtitle: "Industry-leading noise cancellation, dual processors, and crystal-clear 30-hour lossless playback.",
+      quote: "A transformative acoustic experience that completely blocks out ambient city noise.",
+      priceBDT: 38500,
+      originalPriceBDT: 44000,
       discount: "12% OFF",
       rating: 4.9,
-      reviews: "1.2k+ verified buyers",
-      image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&auto=format&fit=crop&q=80",
-      tag: "Top Flagship",
-      color: "from-cyan-500/20 via-blue-500/10 to-transparent",
+      reviews: "2,150 Verified Reviews",
+      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=700&auto=format&fit=crop&q=80",
+      accentGlow: "from-violet-500/20 via-purple-500/10 to-transparent",
+      accentColor: "text-violet-400 bg-violet-500/10 border-violet-500/30",
+      category: "audio",
     },
     {
-      id: 2,
-      category: "laptops",
-      badge: "PRO WORKSTATION",
-      title: "Apple MacBook Pro 14 Inch Space Grey",
-      tagline: "Liquid Retina XDR • 16GB Unified RAM • M-Series",
-      specs: ["Apple M-Series Silicon", "Liquid Retina XDR 120Hz", "16GB Unified Memory", "MagSafe Fast Charging"],
-      priceBDT: 195000,
-      originalPriceBDT: 220000,
-      discount: "11% OFF",
+      id: 4,
+      badge: "Pro Workstation",
+      badgeIcon: Laptop,
+      title: "Power For Creators: MacBook Pro M3",
+      subtitle: "Supercharged by Apple M3 Max silicon, 120Hz Liquid Retina XDR, and MagSafe ultra-fast charging.",
+      quote: "Blazing compilation speeds and unmatched multi-stream 4K editing capability.",
+      priceBDT: 340000,
+      originalPriceBDT: 365000,
+      discount: "Save ৳25,000",
       rating: 5.0,
-      reviews: "850+ verified buyers",
-      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80",
-      tag: "Pro Studio",
-      color: "from-indigo-500/20 via-blue-500/10 to-transparent",
+      reviews: "880 Verified Reviews",
+      image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=700&auto=format&fit=crop&q=80",
+      accentGlow: "from-blue-500/20 via-indigo-500/10 to-transparent",
+      accentColor: "text-blue-400 bg-blue-500/10 border-blue-500/30",
+      category: "laptops",
     },
     {
-      id: 3,
-      category: "accessories",
-      badge: "FLAGSHIP AUDIO",
-      title: "Apple AirPods Max High-Fidelity Silver",
-      tagline: "Active Noise Cancellation • Personalized Spatial Audio",
-      specs: ["High-Fidelity Audio Driver", "Active Noise Cancellation", "Transparency Mode", "20h Battery Life"],
-      priceBDT: 55000,
-      originalPriceBDT: 62000,
-      discount: "11% OFF",
+      id: 9,
+      badge: "Ultra Wearable",
+      badgeIcon: Watch,
+      title: "Apple Watch Ultra 2 GPS + Cellular",
+      subtitle: "Precision dual-frequency GPS, 3000 nits brightness display, and aerospace-grade 49mm titanium case.",
+      quote: "The ultimate rugged companion for extreme endurance and everyday health tracking.",
+      priceBDT: 94000,
+      originalPriceBDT: 105000,
+      discount: "10% OFF",
       rating: 4.9,
-      reviews: "3.8k+ verified buyers",
-      image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80",
-      tag: "Signature Sound",
-      color: "from-violet-500/20 via-purple-500/10 to-transparent",
+      reviews: "950 Verified Reviews",
+      image: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=700&auto=format&fit=crop&q=80",
+      accentGlow: "from-amber-500/20 via-orange-500/10 to-transparent",
+      accentColor: "text-amber-400 bg-amber-500/10 border-amber-500/30",
+      category: "accessories",
+    },
+    {
+      id: 11,
+      badge: "Custom Mechanical",
+      badgeIcon: Keyboard,
+      title: "Keychron Q1 Pro Wireless Mechanical",
+      subtitle: "Full CNC aluminum body, double-gasket design, and hot-swappable switches for unmatched typing feel.",
+      quote: "Crisp acoustic feedback with sublime mechanical key travel and multi-device Bluetooth.",
+      priceBDT: 23500,
+      originalPriceBDT: 27000,
+      discount: "13% OFF",
+      rating: 4.8,
+      reviews: "640 Verified Reviews",
+      image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=700&auto=format&fit=crop&q=80",
+      accentGlow: "from-emerald-500/20 via-teal-500/10 to-transparent",
+      accentColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+      category: "accessories",
+    },
+    {
+      id: 6,
+      badge: "Ultra Flagship",
+      badgeIcon: Smartphone,
+      title: "Samsung Galaxy S24 Ultra 5G AI",
+      subtitle: "Snapdragon 8 Gen 3, built-in S-Pen, Galaxy AI live translation, and quad telephoto zoom system.",
+      quote: "Incredible zoom clarity and breakthrough generative editing tools right in your pocket.",
+      priceBDT: 154999,
+      originalPriceBDT: 172000,
+      discount: "Save ৳17,000",
+      rating: 4.9,
+      reviews: "1,420 Verified Reviews",
+      image: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=700&auto=format&fit=crop&q=80",
+      accentGlow: "from-sky-500/20 via-indigo-500/10 to-transparent",
+      accentColor: "text-sky-400 bg-sky-500/10 border-sky-500/30",
+      category: "smartphones",
     },
   ];
 
-  const currentSpotlight = heroSpotlights[activeSpotlight];
+  const currentSlide = heroSlides[activeSlide];
 
-  const shopCategories = [
-    {
-      id: "smartphones",
-      label: "Smartphones",
-      subtitle: "Flagship 5G Devices",
-      count: "Latest Flagships",
-      icon: <Smartphone className="w-6 h-6 text-cyan-400" />,
-      accent: "from-cyan-500/20 to-blue-500/10",
-      borderGlow: "group-hover:border-cyan-500/40",
-    },
-    {
-      id: "laptops",
-      label: "Laptops & PC",
-      subtitle: "M3/M4 & RTX Rigs",
-      count: "Pro Tech Gear",
-      icon: <Laptop className="w-6 h-6 text-indigo-400" />,
-      accent: "from-indigo-500/20 to-blue-500/10",
-      borderGlow: "group-hover:border-indigo-500/40",
-    },
-    {
-      id: "audio",
-      label: "Premium Audio",
-      subtitle: "ANC & Hi-Fi Sound",
-      count: "Studio Grade",
-      icon: <Headphones className="w-6 h-6 text-violet-400" />,
-      accent: "from-violet-500/20 to-purple-500/10",
-      borderGlow: "group-hover:border-violet-500/40",
-    },
-    {
-      id: "accessories",
-      label: "Accessories",
-      subtitle: "Keyboards & Chargers",
-      count: "Verified Gear",
-      icon: <Zap className="w-6 h-6 text-emerald-400" />,
-      accent: "from-emerald-500/20 to-teal-500/10",
-      borderGlow: "group-hover:border-emerald-500/40",
-    },
-  ];
+  // Auto-advance hero carousel with pause on hover
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [isPaused, heroSlides.length]);
 
-  const featuredDeals = [
+  const handleNextSlide = () => {
+    setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+  };
+
+  const handlePrevSlide = () => {
+    setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+  };
+
+  // Binomo-Inspired "Deals of the day" items
+  const flashDeals = [
     {
       id: 8,
       title: "Sony WH-1000XM5 Wireless Headphones",
       category: "audio",
-      brand: "Sony",
       price: 38500,
       originalPrice: 44000,
       discount: "12% OFF",
       rating: 4.9,
+      soldCount: 19,
+      totalStock: 25,
       image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
     },
     {
       id: 9,
       title: "Apple Watch Ultra 2 GPS + Cellular 49mm Titanium",
       category: "accessories",
-      brand: "Apple",
       price: 94000,
       originalPrice: 105000,
       discount: "10% OFF",
       rating: 4.9,
+      soldCount: 14,
+      totalStock: 20,
       image: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=600&auto=format&fit=crop&q=80",
     },
     {
       id: 11,
       title: "Keychron Q1 Pro Wireless Mechanical Keyboard",
       category: "accessories",
-      brand: "Keychron",
       price: 23500,
       originalPrice: 27000,
       discount: "13% OFF",
       rating: 4.8,
+      soldCount: 22,
+      totalStock: 30,
       image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80",
     },
     {
-      id: 13,
-      title: "Anker 737 Power Bank PowerCore 24K 140W",
-      category: "accessories",
-      brand: "Anker",
-      price: 14500,
-      originalPrice: 17500,
-      discount: "17% OFF",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=600&auto=format&fit=crop&q=80",
+      id: 6,
+      title: "Samsung Galaxy S24 Ultra 5G 512GB Titanium",
+      category: "smartphones",
+      price: 154999,
+      originalPrice: 172000,
+      discount: "10% OFF",
+      rating: 5.0,
+      soldCount: 11,
+      totalStock: 15,
+      image: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=600&auto=format&fit=crop&q=80",
     },
   ];
 
-  const isItemInCart = (id) => {
-    if (!id) return false;
-    const clean = String(id).replace(/^prod-/, "");
-    return cart.some((c) => {
-      const cClean = String(c.id).replace(/^prod-/, "");
-      return cClean === clean || c.id === id;
-    });
+  // Helper function to check if item is in cart
+  const isItemInCart = (prodId) => {
+    const cardId = `prod-${prodId}`;
+    if (cart && Array.isArray(cart.items)) {
+      return cart.items.some((i) => i.id === cardId || i.id === prodId);
+    }
+    return false;
   };
 
+  const handleAddDealToCart = (deal, e) => {
+    e.stopPropagation();
+    const cardId = `prod-${deal.id}`;
+    if (isItemInCart(deal.id)) {
+      if (onRemoveFromCart) onRemoveFromCart(cardId);
+      else dispatch(removeFromCart(cardId));
+    } else {
+      const itemData = {
+        id: cardId,
+        title: deal.title,
+        price: deal.price,
+        originalPrice: deal.originalPrice,
+        image: deal.image,
+        category: deal.category,
+        brand: "Official Store",
+        stock: 15,
+        quantity: 1,
+      };
+      if (onAddToCart) onAddToCart(itemData);
+      else dispatch(addToCart(itemData));
+    }
+  };
+
+  const SlideBadgeIcon = currentSlide.badgeIcon;
+
   return (
-    <div className="w-full text-slate-100 overflow-hidden bg-ambient-mesh">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 selection:bg-cyan-500/20 selection:text-cyan-800">
       {/* ========================================================
-          HERO SECTION: High-Tech Interactive Bento Showcase
+          SECTION 1: THUMBNAIL-CAROUSEL HERO EXPERIENCE
          ======================================================== */}
-      <section className="relative pt-6 pb-16 md:pt-14 md:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        {/* Ambient Radial Mesh Glow Spotlights */}
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 w-[650px] sm:w-[900px] h-[400px] bg-gradient-to-tr from-cyan-500/15 via-blue-600/12 to-indigo-600/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+      <section
+        className="relative pt-6 sm:pt-10 pb-10 sm:pb-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        {/* Subtle Ambient Glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[650px] h-[350px] bg-gradient-to-tr from-cyan-500/5 via-blue-500/5 to-indigo-500/5 blur-[130px] rounded-full pointer-events-none" />
 
-        {/* Master Hero Header & Headline */}
-        <div className="text-center max-w-4xl mx-auto space-y-5">
-          {/* Top Eyebrow Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-semibold shadow-sm backdrop-blur-xl">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span className="font-['Outfit'] tracking-wider uppercase">
-              ✦ NEXT-GEN COMMERCE PLATFORM • BANGLADESH
-            </span>
-          </div>
-
-          {/* Master Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black font-['Outfit'] tracking-tight leading-[1.08] text-white">
-            Engineered for Perfection.{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">
-              Curated for Tomorrow.
-            </span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
-            Discover Bangladesh&apos;s premier authenticated destination for high-end smartphones, pro workstations, and authentic audio gear. Backed by official 1-year brand warranty and rapid doorstep dispatch.
-          </p>
-
-          {/* Hero Quick Search Console */}
-          <form onSubmit={handleHeroSearchSubmit} className="relative max-w-xl mx-auto pt-2">
-            <div className="relative flex items-center">
-              <Search className="absolute left-4 w-4 h-4 text-cyan-400 pointer-events-none" />
-              <input
-                type="text"
-                value={heroSearch}
-                onChange={(e) => setHeroSearch(e.target.value)}
-                placeholder="Search smartphones, laptops, AirPods, luxury perfumes..."
-                className="w-full pl-11 pr-28 py-3.5 rounded-2xl bg-[#090f1e]/90 border border-white/[0.12] focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-xs sm:text-sm text-white placeholder-slate-400 outline-none backdrop-blur-xl shadow-2xl transition"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white text-xs font-bold hover:opacity-95 transition shadow cursor-pointer"
-              >
-                Search
-              </button>
-            </div>
-
-            {/* Trending Quick Search Chips */}
-            <div className="flex items-center justify-center gap-2 mt-3 overflow-x-auto text-[11px] text-slate-400 scrollbar-none px-2">
-              <span className="shrink-0 text-slate-500 font-semibold font-['Outfit']">Trending:</span>
-              <button
-                type="button"
-                onClick={() => navigate("/products?q=iPhone")}
-                className="hover:text-cyan-400 transition cursor-pointer shrink-0 font-medium"
-              >
-                📱 iPhone 15 Pro
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={() => navigate("/products?q=MacBook")}
-                className="hover:text-cyan-400 transition cursor-pointer shrink-0 font-medium"
-              >
-                💻 MacBook M3
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={() => navigate("/products?q=Dior")}
-                className="hover:text-violet-400 transition cursor-pointer shrink-0 font-medium"
-              >
-                ✨ Dior Sauvage
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={() => navigate("/products")}
-                className="hover:text-cyan-300 transition cursor-pointer shrink-0 font-mono font-bold text-cyan-400"
-              >
-                🏷️ STORE20 (20% OFF)
-              </button>
-            </div>
-          </form>
-
-          {/* Quick Action CTA Buttons */}
-          <div className="flex items-center justify-center gap-3 pt-3 flex-wrap">
-            <button
-              type="button"
-              onClick={() => handleNavigation("products")}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white text-xs sm:text-sm font-bold shadow-lg shadow-cyan-950/50 hover:scale-105 active:scale-95 transition cursor-pointer flex items-center gap-2"
+        {/* Hero Card Container */}
+        <div className="relative rounded-3xl bg-white border border-slate-200/90 p-6 sm:p-10 shadow-xl overflow-hidden group">
+          
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSlide}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
             >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Explore All Products</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <a
-              href="#flash-deals"
-              className="px-5 py-3 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.12] hover:border-cyan-500/40 text-slate-200 text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center gap-2 backdrop-blur-md"
-            >
-              <Flame className="w-4 h-4 text-cyan-400" />
-              <span>Live Flash Deals</span>
-            </a>
-          </div>
-        </div>
-
-        {/* ========================================================
-            THE SHOWCASE: Interactive Hardware Command Bento Deck
-           ======================================================== */}
-        <div className="mt-12 sm:mt-16 max-w-5xl mx-auto">
-          {/* Top Interactive Switcher Pill Tabs */}
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#090e1c]/90 border border-white/[0.1] backdrop-blur-xl shadow-xl max-w-full overflow-x-auto scrollbar-none">
-              {heroSpotlights.map((item, idx) => {
-                const isSelected = activeSpotlight === idx;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setActiveSpotlight(idx)}
-                    className={`px-3.5 sm:px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center gap-2 shrink-0 ${
-                      isSelected
-                        ? "bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-cyan-950/50"
-                        : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
-                    }`}
-                  >
-                    <span>{idx === 0 ? "📱 Flagship iPhone" : idx === 1 ? "💻 Pro MacBook M-Series" : "🎧 Spatial AirPods Max"}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Interactive Hardware Console Bento Card */}
-          <div className="relative rounded-3xl bg-gradient-to-b from-[#090f20] to-[#040814] border border-white/[0.12] hover:border-cyan-500/30 p-5 sm:p-8 shadow-2xl transition-all duration-300 overflow-hidden">
-            {/* Ambient Background Aura */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Product Visual Showcase Area */}
-              <div className="lg:col-span-5 flex flex-col items-center justify-center">
-                <div className="relative w-full aspect-[4/3] sm:aspect-square max-h-72 rounded-2xl bg-[#02050e] border border-white/[0.06] flex items-center justify-center p-4 overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-blue-500/5 pointer-events-none" />
-                  
-                  <img
-                    src={currentSpotlight.image}
-                    alt={currentSpotlight.title}
-                    className="max-h-full max-w-full object-contain filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)] group-hover:scale-108 transition-transform duration-500"
-                  />
-
-                  {/* Top Floating Badge */}
-                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-[#080d1a]/95 text-cyan-400 border border-cyan-500/30 text-[10px] font-bold font-mono uppercase tracking-wider backdrop-blur-md">
-                    {currentSpotlight.tag}
-                  </span>
-
-                  {/* Discount Tag */}
-                  <span className="absolute top-3 right-3 px-2 py-0.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[10px] font-extrabold shadow-sm">
-                    {currentSpotlight.discount}
-                  </span>
+              {/* Left Content Area */}
+              <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border transition-colors border-cyan-200 bg-cyan-50 text-cyan-700">
+                  <SlideBadgeIcon className="w-3.5 h-3.5" />
+                  <span>{currentSlide.badge}</span>
                 </div>
-              </div>
 
-              {/* Hardware Specifications & Direct Action Suite */}
-              <div className="lg:col-span-7 space-y-4">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/15 px-2.5 py-0.5 rounded-md border border-cyan-500/30">
-                    {currentSpotlight.badge}
-                  </span>
-                  <div className="flex items-center gap-1 text-amber-400 text-xs font-bold">
-                    <Star className="w-3.5 h-3.5 fill-current" />
-                    <span>{currentSpotlight.rating}</span>
-                    <span className="text-slate-400 font-normal ml-1">({currentSpotlight.reviews})</span>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 font-['Outfit'] tracking-tight leading-[1.1]">
+                  {currentSlide.title}
+                </h1>
+
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
+                  {currentSlide.subtitle}
+                </p>
+
+                {/* Client Quote Card */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 italic max-w-lg flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-cyan-50 border border-cyan-200 flex items-center justify-center shrink-0 text-cyan-600">
+                    <Star className="w-4 h-4 fill-current text-amber-500" />
+                  </div>
+                  <div>
+                    <span className="text-slate-900 font-semibold not-italic block">{currentSlide.reviews}</span>
+                    <span>"{currentSlide.quote}"</span>
                   </div>
                 </div>
 
-                <div>
-                  <h3
-                    onClick={() => setSelectedProductId(currentSpotlight.id)}
-                    className="text-xl sm:text-2xl font-black text-white font-['Outfit'] hover:text-cyan-300 transition-colors cursor-pointer"
-                  >
-                    {currentSpotlight.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                    {currentSpotlight.tagline}
-                  </p>
-                </div>
-
-                {/* Key Specification Tags */}
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  {currentSpotlight.specs.map((spec, i) => (
-                    <div
-                      key={i}
-                      className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-2 text-xs text-slate-300"
-                    >
-                      <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                      <span className="truncate">{spec}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Pricing & Direct Cart Actions */}
-                <div className="pt-3 border-t border-white/[0.08] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-black text-white font-mono">
-                        ৳{currentSpotlight.priceBDT.toLocaleString()}
-                      </span>
-                      <span className="text-xs text-slate-500 line-through font-mono">
-                        ৳{currentSpotlight.originalPriceBDT.toLocaleString()}
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-emerald-400 font-medium block">
-                      ⚡ Official 1-Year Brand Warranty Included
+                {/* Price & CTA Action */}
+                <div className="pt-2 flex items-center gap-4 flex-wrap">
+                  <div className="flex items-baseline gap-2.5">
+                    <span className="text-2xl sm:text-3xl font-black text-slate-900 font-['Outfit']">
+                      ৳{currentSlide.priceBDT.toLocaleString()}
+                    </span>
+                    <span className="text-sm text-slate-400 line-through">
+                      ৳{currentSlide.originalPriceBDT.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedProductId(currentSpotlight.id)}
-                      className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] text-white text-xs font-semibold hover:border-cyan-500/40 transition cursor-pointer flex items-center justify-center gap-1.5"
-                      title="Inspect Specs & Closure Pricing"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Quick View</span>
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/products/${currentSlide.id}`)}
+                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white text-xs sm:text-sm font-bold shadow-md shadow-cyan-600/20 hover:opacity-95 active:scale-95 transition cursor-pointer flex items-center gap-2"
+                  >
+                    <span>Shop now</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onAddToCart({
-                          id: `prod-${currentSpotlight.id}`,
-                          title: currentSpotlight.title,
-                          price: currentSpotlight.priceBDT,
-                          originalPrice: currentSpotlight.originalPriceBDT,
-                          image: currentSpotlight.image,
-                          category: currentSpotlight.category,
-                          brand: "Apple / Flagship",
-                        });
-                      }}
-                      className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white text-xs font-bold shadow-lg shadow-cyan-950/40 hover:scale-105 active:scale-95 transition cursor-pointer flex items-center justify-center gap-1.5"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>{isItemInCart(currentSpotlight.id) ? "In Cart ✓" : "Add to Cart"}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Social Proof & Customer Community Pill */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-md">
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2">
-                <img
-                  className="inline-block h-8 w-8 rounded-full ring-2 ring-[#030712]"
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop"
-                  alt="Customer"
-                />
-                <img
-                  className="inline-block h-8 w-8 rounded-full ring-2 ring-[#030712]"
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop"
-                  alt="Customer"
-                />
-                <img
-                  className="inline-block h-8 w-8 rounded-full ring-2 ring-[#030712]"
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=120&auto=format&fit=crop"
-                  alt="Customer"
-                />
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-600 text-[10px] font-bold text-white ring-2 ring-[#030712]">
-                  +50k
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const itemData = {
+                        id: `prod-${currentSlide.id}`,
+                        title: currentSlide.title,
+                        price: currentSlide.priceBDT,
+                        originalPrice: currentSlide.originalPriceBDT,
+                        image: currentSlide.image,
+                        category: currentSlide.category,
+                        brand: "Official Store",
+                        stock: 15,
+                        quantity: 1,
+                      };
+                      if (isItemInCart(currentSlide.id)) {
+                        if (onRemoveFromCart) onRemoveFromCart(`prod-${currentSlide.id}`);
+                        else dispatch(removeFromCart(`prod-${currentSlide.id}`));
+                      } else {
+                        if (onAddToCart) onAddToCart(itemData);
+                        else dispatch(addToCart(itemData));
+                      }
+                    }}
+                    className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-bold border transition cursor-pointer flex items-center gap-2 ${
+                      isItemInCart(currentSlide.id)
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                        : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200"
+                    }`}
+                  >
+                    {isItemInCart(currentSlide.id) ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-600" />
+                        <span>In Cart</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-4 h-4 text-cyan-600" />
+                        <span>Add to Cart</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
 
-              <div className="text-xs text-slate-300">
-                <div className="flex items-center gap-1 text-amber-400 font-bold">
-                  <span>★★★★★</span>
-                  <span className="text-white ml-1">4.9 / 5 Rating</span>
+              {/* Right Showcase Image */}
+              <div className="lg:col-span-5 flex items-center justify-center">
+                <div className="relative w-full aspect-square max-h-96 rounded-3xl bg-slate-50 border border-slate-200 p-6 flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/5 via-transparent to-blue-500/5 pointer-events-none" />
+                  <img
+                    src={currentSlide.image}
+                    alt={currentSlide.title}
+                    className="max-h-full max-w-full object-contain filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.12)] group-hover:scale-105 transition-transform duration-500"
+                  />
+
+                  <span className="absolute top-4 right-4 px-3 py-1 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 text-white text-xs font-black shadow">
+                    {currentSlide.discount}
+                  </span>
+
+                  <span className="absolute bottom-4 left-4 px-3 py-1 rounded-xl bg-white/95 text-cyan-700 border border-cyan-200 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md flex items-center gap-1.5 shadow-sm">
+                    <ShieldCheck className="w-3.5 h-3.5 text-cyan-600" />
+                    <span>100% Genuine</span>
+                  </span>
                 </div>
-                <span className="text-[11px] text-slate-400">
-                  50,000+ satisfied tech buyers across all 64 districts in Bangladesh.
-                </span>
               </div>
-            </div>
+            </motion.div>
+          </AnimatePresence>
 
-            <div className="flex items-center gap-3 text-xs text-slate-400">
-              <span className="inline-flex items-center gap-1 text-cyan-400 font-semibold font-mono">
-                <ShieldCheck className="w-3.5 h-3.5" /> 100% Genuine
-              </span>
-              <span>•</span>
-              <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold font-mono">
-                <Truck className="w-3.5 h-3.5" /> 2-Hour Dispatch
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* 4-Item High-Conversion Trust Pillar Grid */}
-        <div className="mt-14 pt-8 border-t border-white/[0.08] grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#080d1a]/80 border border-white/[0.06] hover:border-cyan-500/30 transition-colors">
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div className="text-left leading-tight">
-              <span className="text-xs font-bold text-white font-['Outfit'] block">100% Authentic</span>
-              <span className="text-[10px] text-slate-400">Official Brand Sealed</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#080d1a]/80 border border-white/[0.06] hover:border-cyan-500/30 transition-colors">
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
-              <Truck className="w-5 h-5" />
-            </div>
-            <div className="text-left leading-tight">
-              <span className="text-xs font-bold text-white font-['Outfit'] block">24-48h Delivery</span>
-              <span className="text-[10px] text-slate-400">All 64 Districts BD</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#080d1a]/80 border border-white/[0.06] hover:border-cyan-500/30 transition-colors">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-              <RotateCcw className="w-5 h-5" />
-            </div>
-            <div className="text-left leading-tight">
-              <span className="text-xs font-bold text-white font-['Outfit'] block">7 Days Return</span>
-              <span className="text-[10px] text-slate-400">Hassle-Free Claims</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#080d1a]/80 border border-white/[0.06] hover:border-cyan-500/30 transition-colors">
-            <div className="w-9 h-9 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center shrink-0">
-              <Zap className="w-5 h-5" />
-            </div>
-            <div className="text-left leading-tight">
-              <span className="text-xs font-bold text-white font-['Outfit'] block">bKash &amp; COD</span>
-              <span className="text-[10px] text-slate-400">Instant Digital Checkout</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================
-          CURATED CATEGORIES: Interactive Glass Grid
-         ======================================================== */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-400 mb-2 uppercase tracking-wider font-['Outfit']">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Explore Departments</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-['Outfit'] tracking-tight">
-              Curated Collections
-            </h2>
-          </div>
-
+          {/* Carousel Navigation Arrows */}
           <button
             type="button"
-            onClick={() => handleNavigation("products")}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-cyan-400 transition cursor-pointer"
+            onClick={handlePrevSlide}
+            aria-label="Previous Slide"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-cyan-600 hover:text-white border border-slate-200 text-slate-700 flex items-center justify-center backdrop-blur-md transition cursor-pointer shadow-md z-10"
           >
-            <span>View All Categories</span>
-            <ArrowRight className="w-4 h-4" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
-        </div>
+          <button
+            type="button"
+            onClick={handleNextSlide}
+            aria-label="Next Slide"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-cyan-600 hover:text-white border border-slate-200 text-slate-700 flex items-center justify-center backdrop-blur-md transition cursor-pointer shadow-md z-10"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
 
-        {/* 6 Category Tiles */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
-          {shopCategories.map((cat) => (
-            <div
-              key={cat.id}
-              onClick={() => handleCategoryClick(cat.id)}
-              className={`group relative rounded-2xl p-3.5 sm:p-5 bg-gradient-to-b from-[#0a0f1e] to-[#040814] border border-white/[0.08] ${cat.borderGlow} hover:-translate-y-1.5 transition-all duration-300 cursor-pointer shadow-lg flex flex-col justify-between`}
-            >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
-                {cat.icon}
-              </div>
+          {/* Slide Index Badge */}
+          <div className="absolute top-4 right-4 hidden sm:block px-3 py-1 rounded-full bg-white/90 border border-slate-200 text-xs font-mono font-bold text-slate-700 shadow-sm backdrop-blur-md">
+            0{activeSlide + 1} / 0{heroSlides.length}
+          </div>
 
-              <div>
-                <h3 className="text-xs sm:text-sm font-bold text-white font-['Outfit'] group-hover:text-cyan-400 transition-colors">
-                  {cat.label}
-                </h3>
-                <p className="text-[10px] sm:text-[11px] text-slate-400 truncate mt-0.5">
-                  {cat.subtitle}
-                </p>
-                <span className="inline-block mt-2 sm:mt-3 text-[9px] sm:text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-white/[0.05] text-slate-300">
-                  {cat.count}
-                </span>
-              </div>
+          {/* Interactive Thumbnail Carousel Strip (Hover Trigger) */}
+          <div className="mt-8 pt-4 border-t border-slate-200">
+            <div className="flex items-center justify-between text-xs text-slate-500 font-mono mb-2 px-1">
+              <span className="flex items-center gap-1.5 text-cyan-600 font-semibold">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Hover card below to switch slide:</span>
+              </span>
+              <span>Auto-swiping enabled</span>
             </div>
-          ))}
+            <HeroThumbnails
+              slides={heroSlides}
+              activeSlide={activeSlide}
+              onSelectSlide={(idx) => setActiveSlide(idx)}
+            />
+          </div>
         </div>
       </section>
 
       {/* ========================================================
-          FEATURED PRODUCTS CATALOG: Live API Storefront
+          SECTION 2: BINOMO CONTAINER 6 — SERVICE HIGHLIGHTS (4 PILLARS)
          ======================================================== */}
-      <section id="featured-catalog" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+      <section className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-cyan-500/30 hover:shadow-md transition-all">
+            <div className="w-11 h-11 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0 border border-cyan-100">
+              <Truck className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">Free shipping</h4>
+              <p className="text-xs text-slate-500 mt-0.5">Fast and free nationwide delivery across 64 districts.</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-blue-500/30 hover:shadow-md transition-all">
+            <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">Official store</h4>
+              <p className="text-xs text-slate-500 mt-0.5">Guaranteed clear origin and 100% authentic sealed tech.</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-emerald-500/30 hover:shadow-md transition-all">
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+              <RotateCcw className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">Warranty service</h4>
+              <p className="text-xs text-slate-500 mt-0.5">Reliable warranty service, ensuring customer rights.</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-violet-500/30 hover:shadow-md transition-all">
+            <div className="w-11 h-11 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0 border border-violet-100">
+              <CreditCard className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">bKash &amp; Cards</h4>
+              <p className="text-xs text-slate-500 mt-0.5">Instant secure digital checkout and Cash on Delivery.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
+          SECTION 3: BINOMO CONTAINER 1 — "MOST SOLD THIS WEEK"
+         ======================================================== */}
+      <section id="most-sold-section" className="py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-semibold mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>LIVE STORE CATALOG</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-xs font-semibold mb-2">
+              <Flame className="w-3.5 h-3.5 text-cyan-600" />
+              <span>POPULAR HIGHLIGHTS</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-['Outfit'] tracking-tight">
-              Featured Trending Products
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-['Outfit'] tracking-tight">
+              Most sold this week
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Click any product to view real-time specs, customer reviews, and interactive JS closure pricing directly on this landing page.
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Top-selling flagship hardware and genuine accessories ordered by our customers.
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => handleNavigation("products")}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-cyan-500/20 text-xs font-semibold text-slate-300 hover:text-cyan-400 border border-white/[0.1] hover:border-cyan-500/30 transition cursor-pointer self-start md:self-auto"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 hover:text-cyan-700 border border-slate-200 shadow-xs hover:border-cyan-300 transition cursor-pointer self-start md:self-auto"
           >
-            <span>Explore All 1,000+ Items</span>
+            <span>View All Products</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Category Filter Pills */}
+        {/* Category Tabs (All, Smartphones, Laptops, Audio, Accessories) */}
         <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none">
           {catalogTabs.map((tab) => {
             const isActive = activeCatalogCategory === tab.id;
+            const TabIcon = tab.icon;
             return (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveCatalogCategory(tab.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 border ${
+                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 border ${
                   isActive
-                    ? "bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-cyan-950/40"
-                    : "bg-[#090e1c] text-slate-400 border-white/[0.08] hover:text-white hover:border-white/[0.2]"
+                    ? "bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white border-transparent shadow-md shadow-cyan-600/20"
+                    : "bg-white hover:bg-slate-50 text-slate-700 border-slate-200 shadow-xs"
                 }`}
               >
+                <TabIcon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Catalog Grid */}
+        {/* Live Catalog Product Grid */}
         {catalogLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {[...Array(8)].map((_, idx) => (
-              <ProductCardSkeleton key={idx} />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {[...Array(8)].map((_, i) => (
+              <ProductCardSkeleton key={i} />
             ))}
           </div>
         ) : catalogError ? (
-          <div className="p-8 text-center rounded-2xl bg-[#090e1c] border border-red-500/20 my-6">
-            <p className="text-sm text-red-400 mb-3">{catalogError}</p>
+          <div className="rounded-2xl bg-rose-50 border border-rose-200 p-8 text-center max-w-md mx-auto">
+            <p className="text-sm font-semibold text-rose-700">Failed to load catalog products.</p>
             <button
-              onClick={refetchCatalog}
-              className="px-4 py-2 rounded-xl bg-cyan-600 text-white text-xs font-bold hover:bg-cyan-500 cursor-pointer"
+              onClick={() => refetchCatalog()}
+              className="mt-3 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition cursor-pointer"
             >
-              Retry
+              Try Again
             </button>
           </div>
-        ) : catalogProducts.length === 0 ? (
-          <div className="p-12 text-center rounded-2xl bg-[#090e1c] border border-white/[0.06] text-slate-400">
-            <PackageSearch className="w-10 h-10 mx-auto text-slate-500 mb-2" />
-            <p className="text-sm">No products found in this category.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        ) : catalogProducts && catalogProducts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {catalogProducts.map((prod) => (
               <ProductCard
                 key={prod.id}
@@ -743,256 +752,461 @@ export default function HomePage({
                 isInCart={isItemInCart(prod.id)}
                 onAddToCart={onAddToCart}
                 onRemoveFromCart={onRemoveFromCart}
-                onViewDetails={(item) => setSelectedProductId(item.id)}
               />
             ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-white border border-slate-200 p-12 text-center max-w-md mx-auto shadow-xs">
+            <ShoppingBag className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+            <p className="text-sm font-semibold text-slate-700">No products found in this category.</p>
+            <button
+              onClick={() => setActiveCatalogCategory("all")}
+              className="mt-3 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition cursor-pointer shadow-sm"
+            >
+              Show All Products
+            </button>
           </div>
         )}
       </section>
 
       {/* ========================================================
-          FLASH SALE SPOTLIGHT: High-Converting Card Deck
+          SECTION 4: BINOMO CONTAINER 2 — DUAL CATEGORY SPOTLIGHT BANNERS
          ======================================================== */}
-      <section id="flash-deals" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-400 mb-2 uppercase tracking-wider font-['Outfit']">
-              <Flame className="w-3.5 h-3.5" />
-              <span>Limited Stock Drops</span>
+      <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Banner Left: Music & Audio */}
+          <div className="relative rounded-3xl bg-gradient-to-br from-cyan-50 via-sky-50 to-blue-100/70 border border-cyan-200 p-8 sm:p-10 shadow-sm overflow-hidden flex flex-col justify-between group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="space-y-3 z-10">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-700">
+                Acoustic Architecture
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-['Outfit'] leading-tight">
+                Immerse Yourself in Music with Powerful Sound
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-md">
+                Active noise cancellation headphones and studio monitors crafted for pure acoustic immersion.
+              </p>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-['Outfit'] tracking-tight">
-              Exclusive Flash Deals
-            </h2>
+
+            <div className="mt-6 z-10">
+              <button
+                type="button"
+                onClick={() => navigate("/products?category=audio")}
+                className="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-cyan-600/20 transition cursor-pointer inline-flex items-center gap-2"
+              >
+                <span>Shop now</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <Clock className="w-4 h-4 text-cyan-400" />
-            <span>Refreshes Daily at 12:00 AM BD</span>
-          </div>
-        </div>
-
-        {/* 4 Flash Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-          {featuredDeals.map((deal) => (
-            <div
-              key={deal.id}
-              className="group rounded-2xl p-3 sm:p-4 bg-gradient-to-b from-[#0a0f1d] to-[#040814] border border-white/[0.08] hover:border-cyan-500/40 transition-all duration-300 hover:-translate-y-1 shadow-lg flex flex-col justify-between"
-            >
-              <div>
-                <div className="aspect-square rounded-xl bg-[#030610] border border-white/5 p-3 flex items-center justify-center overflow-hidden relative mb-3">
-                  <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[9px] font-bold font-mono">
-                    {deal.discount}
-                  </span>
-                  <img
-                    src={deal.image}
-                    alt={deal.title}
-                    className="max-h-full max-w-full object-contain group-hover:scale-108 transition-transform duration-300"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-[10px] text-slate-400">{deal.brand}</span>
-                  <div className="flex items-center gap-0.5 text-amber-400 text-[10px] font-bold">
-                    <Star className="w-3 h-3 fill-current" />
-                    <span>{deal.rating}</span>
-                  </div>
-                </div>
-
-                <h3 className="text-xs sm:text-sm font-bold text-white line-clamp-1 font-['Outfit']">
-                  {deal.title}
-                </h3>
-              </div>
-
-              <div className="pt-2 sm:pt-3 border-t border-white/[0.06] mt-3 flex items-center justify-between">
-                <div>
-                  <span className="text-sm sm:text-base font-extrabold text-white font-mono block">
-                    ৳{deal.price.toLocaleString()}
-                  </span>
-                  <span className="text-[10px] text-slate-500 line-through font-mono">
-                    ৳{deal.originalPrice.toLocaleString()}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    onAddToCart({
-                      id: deal.id,
-                      title: deal.title,
-                      price: deal.price,
-                      originalPrice: deal.originalPrice,
-                      image: deal.image,
-                      category: deal.category,
-                      brand: deal.brand,
-                    });
-                  }}
-                  className={`p-2 rounded-xl text-xs font-bold transition cursor-pointer shadow-md ${
-                    isItemInCart(deal.id)
-                      ? "bg-emerald-600 text-white"
-                      : "bg-white/[0.08] hover:bg-cyan-500 text-white"
-                  }`}
-                  title={isItemInCart(deal.id) ? "In Cart" : "Add to Cart"}
-                >
-                  {isItemInCart(deal.id) ? (
-                    <Check className="w-4 h-4" />
-                  ) : (
-                    <ShoppingBag className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
+          {/* Banner Right: Smartwatch & Tech */}
+          <div className="relative rounded-3xl bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-100/70 border border-violet-200 p-8 sm:p-10 shadow-sm overflow-hidden flex flex-col justify-between group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="space-y-3 z-10">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-violet-700">
+                Connected Life
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-['Outfit'] leading-tight">
+                Smartwatch &amp; Wearable Health Tech
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-md">
+                All-day ECG monitoring, 40+ dynamic workout modes, and aerospace titanium cellular connectivity.
+              </p>
             </div>
-          ))}
+
+            <div className="mt-6 z-10">
+              <button
+                type="button"
+                onClick={() => navigate("/products?category=accessories")}
+                className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-violet-600/20 transition cursor-pointer inline-flex items-center gap-2"
+              >
+                <span>Shop now</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ========================================================
-          PROMOTIONAL VOUCHER CRADLE: Active Coupons
+          SECTION 5: BINOMO CONTAINER 3 — "ALWAYS ACTIVE: TECHNOLOGY HELPS IMPROVE"
+          (3-Column Interactive Hardware Showcase)
          ======================================================== */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
-        <div className="text-center max-w-xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 mb-2 uppercase tracking-wider font-['Outfit']">
-            <Tag className="w-3.5 h-3.5" />
-            <span>Instant Savings</span>
+      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-600 mb-2 uppercase tracking-wider font-['Outfit']">
+            <Activity className="w-3.5 h-3.5" />
+            <span>Always active</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-['Outfit'] tracking-tight">
-            Active Verified Promo Vouchers
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 font-['Outfit'] tracking-tight">
+            Technology helps improve your life
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1.5">
-            Copy voucher codes and apply them in your shopping cart or checkout page for immediate price reductions.
+          <p className="text-xs sm:text-sm text-slate-500 mt-2">
+            Engineered with precision sensors, ultra-durable materials, and continuous wellness tracking.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Coupon 1: STORE20 */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-cyan-950/40 via-[#080e1c] to-[#040711] border border-cyan-500/30 flex flex-col justify-between shadow-xl relative overflow-hidden">
-            <div className="space-y-2">
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                MOST POPULAR
-              </span>
-              <h3 className="text-base font-extrabold text-white font-['Outfit']">20% Storewide Off</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                20% instant discount across all catalog products. Max ৳2,000 savings.
+        {/* 3-Column Layout: Left Features | Center Visual | Right Features */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Left Column (3 features) */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-cyan-500/30 hover:shadow-md transition-all">
+              <div className="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-3">
+                <Eye className="w-4 h-4" />
+              </div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">Display</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Easily monitor anytime, anywhere with larger Super Retina XDR with 2,000 nits peak brightness.
               </p>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-dashed border-white/15 flex items-center justify-between">
-              <span className="font-mono font-bold text-cyan-400 text-sm tracking-wider">STORE20</span>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-cyan-500/30 hover:shadow-md transition-all">
+              <div className="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-3">
+                <BatteryCharging className="w-4 h-4" />
+              </div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">Capacity</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                24-hour battery endurance with the display always on and ultra-fast GaN wired charging.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-cyan-500/30 hover:shadow-md transition-all">
+              <div className="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-3">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">Safety check</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Detects loss of pulse, sudden impact, and alerts emergency contacts with precision GPS.
+              </p>
+            </div>
+          </div>
+
+          {/* Middle Column (Product Visual Showcase) */}
+          <div className="lg:col-span-4 flex flex-col items-center justify-center">
+            <div className="relative w-full aspect-square max-h-80 rounded-3xl bg-gradient-to-b from-slate-100 to-slate-200/70 border border-slate-200 p-6 flex items-center justify-center shadow-lg overflow-hidden group">
+              <div className="absolute inset-0 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
+              <img
+                src="https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=600&auto=format&fit=crop&q=80"
+                alt="Apple Watch Ultra 2 Titanium"
+                className="max-h-full max-w-full object-contain filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.12)] group-hover:scale-108 transition-transform duration-500"
+              />
+              <span className="absolute bottom-3 px-3 py-1 rounded-xl bg-white/95 text-cyan-700 border border-cyan-200 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
+                Titanium Series
+              </span>
+            </div>
+          </div>
+
+          {/* Right Column (3 features) */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-cyan-500/30 hover:shadow-md transition-all">
+              <div className="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-3">
+                <Activity className="w-4 h-4" />
+              </div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">Exercise &amp; Fitness</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Track running performance, heart rate zones, and over 40 distinct outdoor workout modes.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-cyan-500/30 hover:shadow-md transition-all">
+              <div className="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-3">
+                <Heart className="w-4 h-4" />
+              </div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">Health monitoring</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Balancing activity and rest based on comprehensive sleep metrics, ECG, and SpO2 readings.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-cyan-500/30 hover:shadow-md transition-all">
+              <div className="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-3">
+                <Award className="w-4 h-4" />
+              </div>
+              <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">Guarantee</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Designed to endure extreme environments with official brand 1-year replacement warranty.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
+          SECTION 6: BINOMO CONTAINER 5 — "DEALS OF THE DAY." (FLASH DEALS)
+         ======================================================== */}
+      <section id="deals-of-the-day" className="py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 mb-1.5 uppercase tracking-wider font-['Outfit']">
+              <Flame className="w-4 h-4 text-rose-500 fill-current animate-pulse" />
+              <span>Limited Time Mega Offers</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-['Outfit'] tracking-tight">
+              Deals of the day.
+            </h2>
+          </div>
+
+          {/* Dynamic Countdown Timer */}
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            <span className="text-xs text-slate-500 font-medium flex items-center gap-1 mr-1">
+              <Clock className="w-3.5 h-3.5 text-rose-600" />
+              <span>Ends in:</span>
+            </span>
+            <div className="flex items-center gap-1 font-mono text-xs font-bold text-slate-900">
+              <span className="px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700">
+                {timeLeft.hours}h
+              </span>
+              <span className="text-rose-600">:</span>
+              <span className="px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700">
+                {timeLeft.minutes}m
+              </span>
+              <span className="text-rose-600">:</span>
+              <span className="px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700">
+                {timeLeft.seconds}s
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Deals Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {flashDeals.map((deal) => {
+            const inCart = isItemInCart(deal.id);
+            const isWishlisted = isInWishlist(deal.id);
+            const percentSold = Math.round((deal.soldCount / deal.totalStock) * 100);
+
+            return (
+              <div
+                key={deal.id}
+                onClick={() => navigate(`/products/${deal.id}`)}
+                className="group relative rounded-2xl bg-white border border-slate-200 hover:border-rose-400 p-4 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl flex flex-col justify-between cursor-pointer"
+              >
+                {/* Product Image Area (.products-thumb) */}
+                <div className="relative aspect-square rounded-xl bg-slate-50 border border-slate-100 p-3 mb-3 flex items-center justify-center overflow-hidden">
+                  
+                  {/* Top-Left Labels (.product-lable) */}
+                  <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1 items-start pointer-events-none">
+                    <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] font-extrabold shadow-sm tracking-wider">
+                      {deal.discount}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-white/95 text-rose-700 border border-rose-200 text-[9px] font-bold uppercase tracking-wider backdrop-blur-md shadow-xs">
+                      DEAL OF DAY
+                    </span>
+                  </div>
+
+                  {/* Top-Right Floating Action Button Stack (.product-button) - Binomo Signature Hover */}
+                  <div className="absolute top-2.5 right-2.5 z-20 flex flex-col gap-2 items-center">
+                    {/* Wishlist Heart Button */}
+                    <div className="group/btn relative transform translate-x-3 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 ease-out delay-[0ms]">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist({
+                            id: deal.id,
+                            title: deal.title,
+                            price: deal.price,
+                            thumbnail: deal.image,
+                            category: deal.category,
+                          });
+                        }}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center border shadow-md backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-90 ${
+                          isWishlisted
+                            ? "bg-rose-50 border-rose-300 text-rose-600"
+                            : "bg-white/95 hover:bg-rose-500 hover:border-rose-400 border-slate-200 text-slate-600 hover:text-white"
+                        }`}
+                        aria-label="Wishlist"
+                      >
+                        <Heart
+                          className={`w-3.5 h-3.5 transition-colors ${
+                            isWishlisted ? "fill-rose-500 text-rose-500" : ""
+                          }`}
+                        />
+                      </button>
+                      <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-[10px] font-medium tracking-wide whitespace-nowrap opacity-0 pointer-events-none group-hover/btn:opacity-100 transition-opacity duration-200 shadow-xl hidden sm:block">
+                        {isWishlisted ? "In Wishlist" : "Wishlist"}
+                      </span>
+                    </div>
+
+                    {/* Quick View Button */}
+                    <div className="group/btn relative transform translate-x-3 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 ease-out delay-[75ms]">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/products/${deal.id}`);
+                        }}
+                        className="w-8 h-8 rounded-full flex items-center justify-center bg-white/95 hover:bg-rose-500 border border-slate-200 hover:border-rose-400 text-slate-600 hover:text-white shadow-md backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-90"
+                        aria-label="Quick View"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded bg-slate-900 border border-slate-800 text-white text-[10px] font-medium tracking-wide whitespace-nowrap opacity-0 pointer-events-none group-hover/btn:opacity-100 transition-opacity duration-200 shadow-xl hidden sm:block">
+                        Quick View
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Thumbnail Image with smooth scale */}
+                  <img
+                    src={deal.image}
+                    alt={deal.title}
+                    className="max-h-full max-w-full object-contain transform transition-transform duration-700 ease-out group-hover:scale-110"
+                  />
+
+                  {/* Slide-up bottom explore indicator */}
+                  <div className="absolute inset-x-2 bottom-2 z-10 transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out pointer-events-none hidden sm:flex justify-center">
+                    <div className="px-3 py-1 rounded-lg bg-white/95 backdrop-blur-md border border-slate-200 text-slate-800 text-[10px] font-bold flex items-center gap-1 shadow-md">
+                      <span>Explore Deal</span>
+                      <ArrowRight className="w-3 h-3 text-rose-500" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <div>
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                      {deal.category}
+                    </span>
+                    <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
+                      <Star className="w-3 h-3 fill-current" />
+                      <span>{deal.rating}</span>
+                    </div>
+                  </div>
+
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit'] line-clamp-2 group-hover:text-cyan-600 transition-colors">
+                    {deal.title}
+                  </h4>
+
+                  <div className="flex items-baseline gap-2 mt-2">
+                    <span className="text-base sm:text-lg font-black text-slate-900 font-['Outfit']">
+                      ৳{deal.price.toLocaleString()}
+                    </span>
+                    <span className="text-xs text-slate-400 line-through">
+                      ৳{deal.originalPrice.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="mt-3">
+                    <div className="flex justify-between text-[10px] text-slate-500 mb-1">
+                      <span>Claimed: {deal.soldCount}/{deal.totalStock}</span>
+                      <span className="text-rose-600 font-bold">{percentSold}%</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-rose-500 to-amber-500 rounded-full transition-all duration-500"
+                        style={{ width: `${percentSold}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => handleAddDealToCart(deal, e)}
+                    className={`mt-4 w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs active:scale-95 ${
+                      inCart
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100"
+                        : "bg-slate-100 hover:bg-gradient-to-r hover:from-rose-600 hover:to-pink-600 text-slate-800 hover:text-white border border-slate-200 hover:border-transparent"
+                    }`}
+                  >
+                    {inCart ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>In Cart</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-3.5 h-3.5 text-rose-500 group-hover:text-white transition-colors" />
+                        <span>Claim Deal</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ========================================================
+          SECTION 7: BINOMO CONTAINER 7 — SECONDARY PROMO VOUCHERS
+         ======================================================== */}
+      <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="relative rounded-3xl bg-gradient-to-br from-cyan-50 via-sky-50 to-blue-50/70 border border-cyan-200 p-6 sm:p-8 shadow-sm overflow-hidden flex flex-col justify-between">
+            <div className="space-y-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-cyan-100 text-cyan-800 text-[10px] font-mono font-bold tracking-wider uppercase border border-cyan-200">
+                <Percent className="w-3 h-3 text-cyan-700" />
+                <span>STORE-WIDE PROMO</span>
+              </span>
+              <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-['Outfit']">
+                20% Flat Discount Voucher
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Apply on any order during checkout. Valid for smartphones, laptops, and all accessories.
+              </p>
+            </div>
+
+            <div className="mt-5 pt-4 border-t border-dashed border-cyan-200 flex items-center justify-between">
+              <span className="font-mono font-bold text-cyan-700 text-base tracking-wider">
+                STORE20
+              </span>
               <button
                 type="button"
                 onClick={() => handleCopyCode("STORE20")}
-                className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold shadow-xs transition cursor-pointer flex items-center gap-1.5"
               >
                 {copiedCode === "STORE20" ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <Check className="w-3.5 h-3.5 text-white" />
                     <span>Copied!</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5" />
-                    <span>Copy</span>
+                    <span>Copy Code</span>
                   </>
                 )}
               </button>
             </div>
           </div>
 
-          {/* Coupon 2: SUFFEX500 */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-950/40 via-[#080e1c] to-[#040711] border border-emerald-500/30 flex flex-col justify-between shadow-xl relative overflow-hidden">
+          <div className="relative rounded-3xl bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50/70 border border-violet-200 p-6 sm:p-8 shadow-sm overflow-hidden flex flex-col justify-between">
             <div className="space-y-2">
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                FLAT CASHBACK
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-violet-100 text-violet-800 text-[10px] font-mono font-bold tracking-wider uppercase border border-violet-200">
+                <Tag className="w-3 h-3 text-violet-700" />
+                <span>TECH GADGETS SPECIAL</span>
               </span>
-              <h3 className="text-base font-extrabold text-white font-['Outfit']">Flat ৳500 Bonus</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Flat ৳500 instant deduction on orders of ৳2,500 or higher.
-              </p>
-            </div>
-
-            <div className="mt-5 pt-4 border-t border-dashed border-white/15 flex items-center justify-between">
-              <span className="font-mono font-bold text-emerald-400 text-sm tracking-wider">SUFFEX500</span>
-              <button
-                type="button"
-                onClick={() => handleCopyCode("SUFFEX500")}
-                className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
-              >
-                {copiedCode === "SUFFEX500" ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Coupon 3: WELCOME10 */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-950/40 via-[#080e1c] to-[#040711] border border-blue-500/30 flex flex-col justify-between shadow-xl relative overflow-hidden">
-            <div className="space-y-2">
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                FIRST ORDER
-              </span>
-              <h3 className="text-base font-extrabold text-white font-['Outfit']">10% Welcome Gift</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                10% off your initial purchase. No minimum cart subtotal required.
-              </p>
-            </div>
-
-            <div className="mt-5 pt-4 border-t border-dashed border-white/15 flex items-center justify-between">
-              <span className="font-mono font-bold text-blue-400 text-sm tracking-wider">WELCOME10</span>
-              <button
-                type="button"
-                onClick={() => handleCopyCode("WELCOME10")}
-                className="px-3 py-1.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
-              >
-                {copiedCode === "WELCOME10" ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Coupon 4: TECH15 */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-violet-950/40 via-[#080e1c] to-[#040711] border border-violet-500/30 flex flex-col justify-between shadow-xl relative overflow-hidden">
-            <div className="space-y-2">
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
-                TECH GADGETS
-              </span>
-              <h3 className="text-base font-extrabold text-white font-['Outfit']">15% Tech Discount</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-['Outfit']">
+                15% Tech Discount
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
                 Special 15% discount for laptops, phones, and acoustic audio products.
               </p>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-dashed border-white/15 flex items-center justify-between">
-              <span className="font-mono font-bold text-violet-400 text-sm tracking-wider">TECH15</span>
+            <div className="mt-5 pt-4 border-t border-dashed border-violet-200 flex items-center justify-between">
+              <span className="font-mono font-bold text-violet-700 text-base tracking-wider">
+                TECH15
+              </span>
               <button
                 type="button"
                 onClick={() => handleCopyCode("TECH15")}
-                className="px-3 py-1.5 rounded-xl bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-xs transition cursor-pointer flex items-center gap-1.5"
               >
                 {copiedCode === "TECH15" ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <Check className="w-3.5 h-3.5 text-white" />
                     <span>Copied!</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5" />
-                    <span>Copy</span>
+                    <span>Copy Code</span>
                   </>
                 )}
               </button>
@@ -1002,124 +1216,144 @@ export default function HomePage({
       </section>
 
       {/* ========================================================
-          ANTI-BORING FEATURE PILL GRID: Trust Guarantees
+          SECTION 8: BINOMO CONTAINER 8 — "OUR HAPPY CLIENTS"
          ======================================================== */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/[0.06]">
+      <section className="py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200">
         <div className="text-center max-w-xl mx-auto mb-10">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-['Outfit'] tracking-tight">
-            Why Hundreds of Thousands Choose Suffex
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-600 mb-1.5 uppercase tracking-wider font-['Outfit']">
+            <Star className="w-3.5 h-3.5 fill-current text-amber-500" />
+            <span>Testimonials</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-['Outfit'] tracking-tight">
+            Our Happy Clients
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1.5">
-            Designed to guarantee 100% peace of mind on every transaction.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            See what our satisfied customers have to say about our electronic accessories.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="group flex items-center gap-3.5 p-4 rounded-2xl bg-[#080d1a] border border-white/[0.08] hover:border-cyan-500/40 hover:-translate-y-1 transition-all duration-300">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-cyan-500/30 hover:shadow-md transition-all flex flex-col justify-between">
             <div>
-              <h4 className="text-sm font-bold text-white font-['Outfit']">100% Authentic Products</h4>
-              <p className="text-xs text-slate-400">Directly imported from official manufacturer channels.</p>
+              <div className="flex items-center gap-1 text-amber-500 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed italic">
+                "I've been using this product for a month now, and I've had no issues. The customer service is top-notch, and the official sealed packaging was 100% genuine."
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div>
+                <h5 className="text-xs font-bold text-slate-900 font-['Outfit']">Tanvir Ahmed</h5>
+                <span className="text-[10px] text-slate-500">Chittagong</span>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                <span>Verified Buyer</span>
+              </span>
             </div>
           </div>
 
-          <div className="group flex items-center gap-3.5 p-4 rounded-2xl bg-[#080d1a] border border-white/[0.08] hover:border-blue-500/40 hover:-translate-y-1 transition-all duration-300">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
-              <Truck className="w-5 h-5" />
-            </div>
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-blue-500/30 hover:shadow-md transition-all flex flex-col justify-between">
             <div>
-              <h4 className="text-sm font-bold text-white font-['Outfit']">Express 24-48h Delivery</h4>
-              <p className="text-xs text-slate-400">Superfast doorstep courier across 64 districts in Bangladesh.</p>
+              <div className="flex items-center gap-1 text-amber-500 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed italic">
+                "Ordered a mechanical keyboard and charger. Warranty papers and invoice were included. Delivery in Dhaka was within 24 hours. The best electronics shopping experience."
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div>
+                <h5 className="text-xs font-bold text-slate-900 font-['Outfit']">Farhana Rahman</h5>
+                <span className="text-[10px] text-slate-500">Dhaka</span>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                <span>Verified Buyer</span>
+              </span>
             </div>
           </div>
 
-          <div className="group flex items-center gap-3.5 p-4 rounded-2xl bg-[#080d1a] border border-white/[0.08] hover:border-emerald-500/40 hover:-translate-y-1 transition-all duration-300">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-              <RotateCcw className="w-5 h-5" />
-            </div>
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-violet-500/30 hover:shadow-md transition-all flex flex-col justify-between">
             <div>
-              <h4 className="text-sm font-bold text-white font-['Outfit']">7 Days Easy Return</h4>
-              <p className="text-xs text-slate-400">Hassle-free replacement policy if you receive a damaged unit.</p>
+              <div className="flex items-center gap-1 text-amber-500 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed italic">
+                "MacBook Pro M3 arrived in pristine condition with Apple warranty active upon setup. Reliable, fast, and 100% authentic tech store in Bangladesh."
+              </p>
             </div>
-          </div>
-
-          <div className="group flex items-center gap-3.5 p-4 rounded-2xl bg-[#080d1a] border border-white/[0.08] hover:border-violet-500/40 hover:-translate-y-1 transition-all duration-300">
-            <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center shrink-0">
-              <Headphones className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-white font-['Outfit']">24/7 VIP Customer Support</h4>
-              <p className="text-xs text-slate-400">Live chat, WhatsApp, and dedicated hotline assistance.</p>
-            </div>
-          </div>
-
-          <div className="group flex items-center gap-3.5 p-4 rounded-2xl bg-[#080d1a] border border-white/[0.08] hover:border-amber-500/40 hover:-translate-y-1 transition-all duration-300">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
-              <Tag className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-white font-['Outfit']">Best Price Guarantee</h4>
-              <p className="text-xs text-slate-400">Direct pricing with exclusive store vouchers & instant discounts.</p>
-            </div>
-          </div>
-
-          <div className="group flex items-center gap-3.5 p-4 rounded-2xl bg-[#080d1a] border border-white/[0.08] hover:border-cyan-500/40 hover:-translate-y-1 transition-all duration-300">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0">
-              <Zap className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-white font-['Outfit']">Cash on Delivery & bKash</h4>
-              <p className="text-xs text-slate-400">Multiple secure payment gateways with instant digital receipts.</p>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div>
+                <h5 className="text-xs font-bold text-slate-900 font-['Outfit']">Sabbir Hossain</h5>
+                <span className="text-[10px] text-slate-500">Sylhet</span>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                <span>Verified Buyer</span>
+              </span>
             </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================
-          BOTTOM CTA BANNER: Deep Obsidian & Cyber Cyan Glow
+          SECTION 9: AUTHORIZED BRAND PARTNERS STRIP
          ======================================================== */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="relative rounded-3xl bg-gradient-to-r from-[#091124] via-[#0e1834] to-[#080f20] border border-cyan-500/30 p-8 sm:p-14 shadow-2xl overflow-hidden text-center sm:text-left">
-          {/* Subtle Cyber Glow Backing */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
+      <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200">
+        <p className="text-center text-xs font-semibold text-slate-500 uppercase tracking-wider mb-6 font-['Outfit']">
+          Authorized Tech Brands &amp; Official Distribution
+        </p>
+        <div className="flex items-center justify-center gap-8 sm:gap-14 flex-wrap text-slate-500 text-sm sm:text-base font-bold font-['Outfit']">
+          <span className="hover:text-slate-900 transition">Apple</span>
+          <span className="hover:text-slate-900 transition">Samsung</span>
+          <span className="hover:text-slate-900 transition">Sony</span>
+          <span className="hover:text-slate-900 transition">ASUS ROG</span>
+          <span className="hover:text-slate-900 transition">Anker</span>
+          <span className="hover:text-slate-900 transition">Keychron</span>
+          <span className="hover:text-slate-900 transition">Logitech</span>
+          <span className="hover:text-slate-900 transition">Google</span>
+        </div>
+      </section>
+
+      {/* ========================================================
+          SECTION 10: BINOMO NEWSLETTER / COMMUNITY VIP
+         ======================================================== */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="relative rounded-3xl bg-gradient-to-r from-cyan-700 via-blue-700 to-indigo-800 border border-blue-600/30 p-8 sm:p-12 shadow-xl overflow-hidden text-center sm:text-left text-white">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-2xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20 text-cyan-200 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>THE FUTURE OF SHOPPING</span>
+              <span>SUBSCRIBE OUR NEWSLETTER</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-white font-['Outfit'] tracking-tight">
-              Ready to Upgrade Your Tech &amp; Lifestyle?
+            <h2 className="text-2xl sm:text-4xl font-black text-white font-['Outfit'] tracking-tight">
+              Ready to Upgrade Your Tech Setup?
             </h2>
-            <p className="text-sm text-slate-300 leading-relaxed font-normal">
-              Browse our vast inventory of genuine products, take advantage of seasonal discount coupons, and enjoy fast doorstep delivery.
+            <p className="text-xs sm:text-sm text-slate-100 leading-relaxed font-normal">
+              Subscribe to get secret member discounts, flash sale updates, and fast delivery notifications.
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex items-center gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={() => handleNavigation("products")}
-                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white text-sm font-bold shadow-xl shadow-cyan-950/60 transition-transform hover:scale-105 active:scale-95 cursor-pointer inline-flex items-center gap-2"
+                className="px-7 py-3 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs sm:text-sm font-bold shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer inline-flex items-center gap-2"
               >
                 <span>Start Shopping Now</span>
-                <ArrowRight className="w-4 h-4 text-white" />
+                <ArrowRight className="w-4 h-4 text-slate-900" />
               </button>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Quick View Product Modal with JS Closure Price Calculation */}
-      {selectedProductId && (
-        <ProductModal
-          productId={selectedProductId}
-          onClose={() => setSelectedProductId(null)}
-          isInCart={isItemInCart(selectedProductId)}
-          onAddToCart={onAddToCart}
-          onRemoveFromCart={onRemoveFromCart}
-        />
-      )}
     </div>
   );
 }

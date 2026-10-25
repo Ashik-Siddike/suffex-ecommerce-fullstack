@@ -59,25 +59,25 @@ export default function ContactPage({ onShowToast }) {
   };
 
   return (
-    <div className="w-full text-slate-100 animate-fadeIn pb-24 font-sans bg-[#030712]">
+    <div className="w-full text-slate-900 animate-fadeIn pb-24 font-sans bg-[#f8fafc]">
       {/* Header Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#080e1e] via-[#050914] to-[#030712] border-b border-white/[0.08] py-16 text-center px-4">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-cyan-500/10 blur-[100px] pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50 to-[#f8fafc] border-b border-slate-200/80 py-16 text-center px-4">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-cyan-500/5 blur-[100px] pointer-events-none" />
 
         <div className="max-w-3xl mx-auto space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-xs font-semibold">
             <Headphones className="w-3.5 h-3.5" />
             <span>24/7 CUSTOMER CARE & SUPPORT</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white font-['Outfit'] tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 font-['Outfit'] tracking-tight">
             How Can We{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600">
               Help You Today?
             </span>
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
             Need help tracking a shipment, inquiring about product availability, or claiming warranty? Our dedicated customer team is ready to assist you.
           </p>
         </div>
@@ -87,41 +87,41 @@ export default function ContactPage({ onShowToast }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 space-y-16">
         {/* Contact Channels Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-          <div className="p-6 rounded-3xl bg-[#070b14] border border-white/[0.08] hover:border-cyan-500/30 transition shadow-xl space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 hover:border-cyan-500/40 transition shadow-xs hover:shadow-md space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 border border-cyan-200 flex items-center justify-center">
               <Phone className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white font-['Outfit']">Official Phone Hotline</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900 font-['Outfit']">Official Phone Hotline</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Available 7 days a week, 9:00 AM to 10:00 PM for instant order assistance.
             </p>
-            <span className="font-mono text-sm font-bold text-cyan-400 block pt-1">
+            <span className="font-mono text-sm font-bold text-cyan-700 block pt-1">
               +880 1800-SUFFEX (783339)
             </span>
           </div>
 
-          <div className="p-6 rounded-3xl bg-[#070b14] border border-white/[0.08] hover:border-indigo-500/30 transition shadow-xl space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 hover:border-indigo-500/40 transition shadow-xs hover:shadow-md space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center">
               <Mail className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white font-['Outfit']">Email Support Desk</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900 font-['Outfit']">Email Support Desk</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Send us corporate orders, warranty inquiries, or partner proposals.
             </p>
-            <span className="font-mono text-sm font-bold text-indigo-400 block pt-1">
+            <span className="font-mono text-sm font-bold text-indigo-700 block pt-1">
               support@suffexstore.com
             </span>
           </div>
 
-          <div className="p-6 rounded-3xl bg-[#070b14] border border-white/[0.08] hover:border-emerald-500/30 transition shadow-xl space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 hover:border-emerald-500/40 transition shadow-xs hover:shadow-md space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
               <MapPin className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white font-['Outfit']">Flagship Experience Hub</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900 font-['Outfit']">Flagship Experience Hub</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Level 4, Suffex IT Tower, Dhanmondi 27, Dhaka-1209, Bangladesh.
             </p>
-            <span className="text-xs font-semibold text-emerald-400 block pt-1">
+            <span className="text-xs font-semibold text-emerald-700 block pt-1">
               Walk-in Experience Center
             </span>
           </div>
@@ -130,12 +130,12 @@ export default function ContactPage({ onShowToast }) {
         {/* 2-Column: Inquiry Form & Interactive FAQ */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Left Column: Form */}
-          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-[#070b14] border border-white/[0.08] shadow-2xl space-y-5">
+          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-5">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white font-['Outfit']">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-['Outfit']">
                 Send Us a Quick Message
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-600 mt-1">
                 Fill out the form below and our customer representative will get in touch within 2 hours.
               </p>
             </div>
@@ -143,48 +143,48 @@ export default function ContactPage({ onShowToast }) {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Your Full Name</label>
+                  <label className="text-xs font-semibold text-slate-700">Your Full Name</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. Tanvir Ahmed"
-                    className="w-full px-4 py-3 rounded-xl bg-[#030712] border border-white/10 text-xs text-white placeholder-slate-500 focus:border-cyan-500 outline-none transition"
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 placeholder-slate-400 focus:border-cyan-500 outline-none transition shadow-xs"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Phone Number</label>
+                  <label className="text-xs font-semibold text-slate-700">Phone Number</label>
                   <input
                     type="tel"
                     required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="017XXXXXXXX"
-                    className="w-full px-4 py-3 rounded-xl bg-[#030712] border border-white/10 text-xs text-white placeholder-slate-500 focus:border-cyan-500 outline-none transition"
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 placeholder-slate-400 focus:border-cyan-500 outline-none transition shadow-xs"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Email Address</label>
+                <label className="text-xs font-semibold text-slate-700">Email Address</label>
                 <input
                   type="email"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="tanvir@example.com"
-                  className="w-full px-4 py-3 rounded-xl bg-[#030712] border border-white/10 text-xs text-white placeholder-slate-500 focus:border-cyan-500 outline-none transition"
+                  className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 placeholder-slate-400 focus:border-cyan-500 outline-none transition shadow-xs"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Inquiry Subject</label>
+                <label className="text-xs font-semibold text-slate-700">Inquiry Subject</label>
                 <select
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-[#030712] border border-white/10 text-xs text-white focus:border-cyan-500 outline-none transition cursor-pointer"
+                  className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 focus:border-cyan-500 outline-none transition cursor-pointer shadow-xs"
                 >
                   <option value="Order Inquiry">Order Status & Delivery Tracking</option>
                   <option value="Warranty Claim">Warranty Claim & Technical Support</option>
@@ -195,20 +195,20 @@ export default function ContactPage({ onShowToast }) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Your Message</label>
+                <label className="text-xs font-semibold text-slate-700">Your Message</label>
                 <textarea
                   rows={4}
                   required
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Describe your inquiry or include your Order ID..."
-                  className="w-full px-4 py-3 rounded-xl bg-[#030712] border border-white/10 text-xs text-white placeholder-slate-500 focus:border-cyan-500 outline-none transition resize-none"
+                  className="w-full px-4 py-3 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 placeholder-slate-400 focus:border-cyan-500 outline-none transition resize-none shadow-xs"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white text-xs font-bold shadow-lg shadow-cyan-500/25 hover:brightness-110 transition cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white text-xs font-bold shadow-md shadow-cyan-600/20 hover:shadow-cyan-600/30 transition cursor-pointer flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" />
                 <span>Submit Inquiry</span>
@@ -219,10 +219,10 @@ export default function ContactPage({ onShowToast }) {
           {/* Right Column: FAQ Accordion */}
           <div className="lg:col-span-6 space-y-4">
             <div className="space-y-1 mb-2">
-              <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider font-['Outfit']">
+              <span className="text-xs font-bold text-cyan-700 uppercase tracking-wider font-['Outfit']">
                 FREQUENTLY ASKED QUESTIONS
               </span>
-              <h2 className="text-2xl font-bold text-white font-['Outfit']">
+              <h2 className="text-2xl font-bold text-slate-900 font-['Outfit']">
                 Help & Shopping Guide
               </h2>
             </div>
@@ -233,23 +233,23 @@ export default function ContactPage({ onShowToast }) {
                 return (
                   <div
                     key={idx}
-                    className="rounded-2xl bg-[#070b14] border border-white/[0.08] hover:border-cyan-500/20 overflow-hidden transition-all duration-200"
+                    className="rounded-2xl bg-white border border-slate-200 hover:border-cyan-500/30 overflow-hidden transition-all duration-200 shadow-xs"
                   >
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? -1 : idx)}
-                      className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold text-white hover:text-cyan-400 transition cursor-pointer"
+                      className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold text-slate-900 hover:text-cyan-600 transition cursor-pointer"
                     >
                       <span className="font-['Outfit']">{faq.q}</span>
                       <ChevronDown
-                        className={`w-4 h-4 text-cyan-400 shrink-0 transition-transform duration-200 ${
+                        className={`w-4 h-4 text-cyan-600 shrink-0 transition-transform duration-200 ${
                           isOpen ? "rotate-180" : ""
                         }`}
                       />
                     </button>
 
                     {isOpen && (
-                      <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-slate-300 leading-relaxed border-t border-white/[0.04] pt-3">
+                      <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
                         {faq.a}
                       </div>
                     )}

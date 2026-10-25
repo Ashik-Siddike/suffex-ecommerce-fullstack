@@ -6,7 +6,6 @@ import useDebounce from "../hooks/useDebounce";
 import ProductCard from "../components/ProductCard";
 import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import useDocumentTitle from "../hooks/useDocumentTitle";
-import ProductModal from "../components/ProductModal";
 import {
   Search,
   SlidersHorizontal,
@@ -70,8 +69,6 @@ export default function ProductsPage({
     }
   }, [debouncedSearchQuery, selectedCategory, searchParams, setSearchParams]);
 
-  // Selected product ID for Quick View Modal
-  const [selectedProductId, setSelectedProductId] = useState(null);
 
   // Dynamic SEO Page Title based on category and search query
   const pageTitle = useMemo(() => {
@@ -168,14 +165,14 @@ export default function ProductsPage({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 animate-fadeIn">
       {/* Page Header */}
       <div className="space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-semibold">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-xs font-semibold">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Real-time API Store Catalog</span>
         </div>
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-white font-['Outfit'] tracking-tight">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 font-['Outfit'] tracking-tight">
           Explore Flagship Tech &amp; Lifestyle
         </h1>
-        <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
           Search authentic products, filter by official categories, and discover exclusive store discounts with instant closure pricing calculation.
         </p>
       </div>
@@ -191,24 +188,24 @@ export default function ProductsPage({
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder="Search products, brands, models..."
-              className="w-full pl-10 pr-10 py-3 rounded-xl bg-[#090e1c] border border-white/[0.1] focus:border-cyan-400 text-xs sm:text-sm text-white placeholder-slate-500 outline-none transition shadow-inner"
+              className="w-full pl-10 pr-10 py-3 rounded-xl bg-white border border-slate-300 focus:border-cyan-500 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition shadow-xs"
             />
             {isDebouncing && (
-              <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400 animate-spin" />
+              <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-600 animate-spin" />
             )}
           </div>
 
           {/* Sort Dropdown & Reset Action */}
           <div className="flex items-center gap-2 shrink-0">
             <div className="relative flex items-center">
-              <SlidersHorizontal className="absolute left-3 w-3.5 h-3.5 text-cyan-400 pointer-events-none" />
+              <SlidersHorizontal className="absolute left-3 w-3.5 h-3.5 text-cyan-600 pointer-events-none" />
               <select
                 value={sortBy}
                 onChange={(e) => {
                   setSortBy(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="pl-8.5 pr-8 py-3 rounded-xl bg-[#090e1c] border border-white/[0.1] text-xs font-semibold text-slate-200 outline-none hover:border-cyan-500/40 cursor-pointer appearance-none transition"
+                className="pl-8.5 pr-8 py-3 rounded-xl bg-white border border-slate-300 text-xs font-semibold text-slate-700 outline-none hover:border-cyan-500 cursor-pointer appearance-none transition shadow-xs"
               >
                 <option value="default">Default Sorting</option>
                 <option value="newest">Newest Arrivals</option>
@@ -223,7 +220,7 @@ export default function ProductsPage({
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="p-3 rounded-xl bg-white/[0.06] hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 border border-white/10 hover:border-rose-500/30 transition cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+                className="p-3 rounded-xl bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-300 transition cursor-pointer flex items-center gap-1.5 text-xs font-semibold shadow-xs"
                 title="Reset all filters"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -244,8 +241,8 @@ export default function ProductsPage({
                 onClick={() => handleCategoryChange(cat.id)}
                 className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 ${
                   isActive
-                    ? "bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-cyan-950/50"
-                    : "bg-[#090e1c] hover:bg-white/[0.08] text-slate-300 border border-white/[0.08]"
+                    ? "bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white shadow-md shadow-cyan-600/20"
+                    : "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-xs"
                 }`}
               >
                 {cat.label}
@@ -255,19 +252,19 @@ export default function ProductsPage({
         </div>
 
         {/* Results Metadata Bar */}
-        <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+        <div className="flex items-center justify-between text-xs text-slate-500 px-1">
           <div>
-            Showing <strong className="text-white font-mono">{products.length}</strong> of{" "}
-            <strong className="text-white font-mono">{total}</strong> items
+            Showing <strong className="text-slate-900 font-mono">{products.length}</strong> of{" "}
+            <strong className="text-slate-900 font-mono">{total}</strong> items
             {selectedCategory !== "all" && (
-              <span> in <strong className="text-cyan-400 capitalize">{selectedCategory}</strong></span>
+              <span> in <strong className="text-cyan-700 capitalize">{selectedCategory}</strong></span>
             )}
             {debouncedSearchQuery && (
-              <span> matching &quot;<strong className="text-white">{debouncedSearchQuery}</strong>&quot;</span>
+              <span> matching &quot;<strong className="text-slate-900">{debouncedSearchQuery}</strong>&quot;</span>
             )}
           </div>
 
-          <div className="text-[11px] font-mono text-slate-400">
+          <div className="text-[11px] font-mono text-slate-500">
             Page {currentPage} of {totalPages}
           </div>
         </div>
@@ -281,33 +278,33 @@ export default function ProductsPage({
           ))}
         </div>
       ) : error ? (
-        <div className="rounded-3xl bg-[#0d1424] border border-rose-500/30 p-8 sm:p-12 text-center max-w-lg mx-auto space-y-4 shadow-2xl">
-          <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+        <div className="rounded-3xl bg-white border border-rose-200 p-8 sm:p-12 text-center max-w-lg mx-auto space-y-4 shadow-xl">
+          <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto">
             <AlertTriangle className="w-7 h-7" />
           </div>
-          <h3 className="text-lg font-bold text-white font-['Outfit']">Failed to Load Products</h3>
-          <p className="text-xs text-rose-300/80 leading-relaxed">{error}</p>
+          <h3 className="text-lg font-bold text-slate-900 font-['Outfit']">Failed to Load Products</h3>
+          <p className="text-xs text-rose-600 leading-relaxed">{error}</p>
           <button
             type="button"
             onClick={refetch}
-            className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold cursor-pointer shadow-lg transition"
+            className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold cursor-pointer shadow-md transition"
           >
             Retry Fetching
           </button>
         </div>
       ) : products.length === 0 ? (
-        <div className="rounded-3xl bg-[#090e1c] border border-white/[0.08] p-10 sm:p-16 text-center max-w-md mx-auto space-y-4 shadow-xl">
-          <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center mx-auto text-slate-400">
-            <PackageSearch className="w-8 h-8 text-cyan-400" />
+        <div className="rounded-3xl bg-white border border-slate-200 p-10 sm:p-16 text-center max-w-md mx-auto space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
+            <PackageSearch className="w-8 h-8 text-cyan-600" />
           </div>
-          <h3 className="text-lg font-bold text-white font-['Outfit']">No products found</h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <h3 className="text-lg font-bold text-slate-900 font-['Outfit']">No products found</h3>
+          <p className="text-xs text-slate-500 leading-relaxed">
             No items matched your search criteria. Try modifying your keywords or resetting filters.
           </p>
           <button
             type="button"
             onClick={handleResetFilters}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold shadow-lg transition cursor-pointer"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-xs font-bold shadow-md transition cursor-pointer"
           >
             Reset Filters
           </button>
@@ -321,7 +318,6 @@ export default function ProductsPage({
               isInCart={isProductInCart(item.id)}
               onAddToCart={onAddToCart}
               onRemoveFromCart={onRemoveFromCart}
-              onViewDetails={(prod) => setSelectedProductId(prod.id)}
             />
           ))}
         </div>
@@ -337,7 +333,7 @@ export default function ProductsPage({
               setCurrentPage((prev) => Math.max(1, prev - 1));
               window.scrollTo({ top: 180, behavior: "smooth" });
             }}
-            className="p-2.5 rounded-xl bg-[#090e1c] border border-white/[0.1] text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer shadow-xs"
             aria-label="Previous page"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -361,8 +357,8 @@ export default function ProductsPage({
                     }}
                     className={`w-9 h-9 rounded-xl text-xs font-bold font-mono transition cursor-pointer ${
                       currentPage === pageNum
-                        ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg"
-                        : "bg-[#090e1c] text-slate-400 hover:text-white border border-white/[0.08]"
+                        ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-sm"
+                        : "bg-white text-slate-600 hover:text-slate-900 border border-slate-200 shadow-xs"
                     }`}
                   >
                     {pageNum}
@@ -370,7 +366,7 @@ export default function ProductsPage({
                 );
               }
               if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                return <span key={pageNum} className="text-slate-500 text-xs px-1">...</span>;
+                return <span key={pageNum} className="text-slate-400 text-xs px-1">...</span>;
               }
               return null;
             })}
@@ -383,7 +379,7 @@ export default function ProductsPage({
               setCurrentPage((prev) => Math.min(totalPages, prev + 1));
               window.scrollTo({ top: 180, behavior: "smooth" });
             }}
-            className="p-2.5 rounded-xl bg-[#090e1c] border border-white/[0.1] text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer shadow-xs"
             aria-label="Next page"
           >
             <ChevronRight className="w-4 h-4" />
@@ -391,16 +387,7 @@ export default function ProductsPage({
         </div>
       )}
 
-      {/* Quick View Product Modal with JS Closure Price Calculation */}
-      {selectedProductId && (
-        <ProductModal
-          productId={selectedProductId}
-          onClose={() => setSelectedProductId(null)}
-          isInCart={isProductInCart(selectedProductId)}
-          onAddToCart={onAddToCart}
-          onRemoveFromCart={onRemoveFromCart}
-        />
-      )}
+
     </div>
   );
 }

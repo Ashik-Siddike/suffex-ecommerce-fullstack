@@ -72,6 +72,10 @@ export const getAdminProducts = async (req, res, next) => {
 
     const formattedProducts = result.rows.map((p) => ({
       ...p,
+      thumbnail: p.thumbnail || '',
+      image_url: p.thumbnail || '',
+      image: p.thumbnail || '',
+      images: p.thumbnail ? [p.thumbnail] : [],
       price: Number(p.price) || 0,
       stock: Number(p.stock) || 0,
       attributes: p.attributes || {},
@@ -99,9 +103,13 @@ export const createProduct = async (req, res, next) => {
       price,
       category = 'General',
       thumbnail = '',
+      image_url = '',
+      image = '',
       stock = 0,
       attributes = {},
     } = req.body;
+
+    const resolvedThumbnail = (image_url || thumbnail || image || '').trim();
 
     if (!title || title.trim() === '') {
       return res.status(400).json({
@@ -142,7 +150,7 @@ export const createProduct = async (req, res, next) => {
       description ? description.trim() : '',
       numPrice,
       category.trim(),
-      thumbnail.trim(),
+      resolvedThumbnail,
       numStock,
       JSON.stringify(parsedAttributes),
     ];
@@ -155,6 +163,10 @@ export const createProduct = async (req, res, next) => {
       message: 'Product created successfully!',
       product: {
         ...created,
+        thumbnail: created.thumbnail || '',
+        image_url: created.thumbnail || '',
+        image: created.thumbnail || '',
+        images: created.thumbnail ? [created.thumbnail] : [],
         price: Number(created.price) || 0,
         stock: Number(created.stock) || 0,
       },
@@ -184,6 +196,8 @@ export const updateProduct = async (req, res, next) => {
       price,
       category,
       thumbnail,
+      image_url,
+      image,
       stock,
       attributes,
       is_active,
@@ -204,7 +218,8 @@ export const updateProduct = async (req, res, next) => {
     const updatedDesc = description !== undefined ? description : current.description;
     const updatedPrice = price !== undefined ? Number(price) : Number(current.price);
     const updatedCat = category !== undefined ? category.trim() : current.category;
-    const updatedThumb = thumbnail !== undefined ? thumbnail.trim() : current.thumbnail;
+    const incomingImage = image_url !== undefined ? image_url : (thumbnail !== undefined ? thumbnail : image);
+    const updatedThumb = incomingImage !== undefined ? String(incomingImage).trim() : current.thumbnail;
     const updatedStock = stock !== undefined ? Math.max(0, parseInt(stock, 10) || 0) : current.stock;
     const updatedIsActive = is_active !== undefined ? Boolean(is_active) : current.is_active;
 
@@ -255,6 +270,10 @@ export const updateProduct = async (req, res, next) => {
       message: 'Product updated successfully!',
       product: {
         ...updated,
+        thumbnail: updated.thumbnail || '',
+        image_url: updated.thumbnail || '',
+        image: updated.thumbnail || '',
+        images: updated.thumbnail ? [updated.thumbnail] : [],
         price: Number(updated.price) || 0,
         stock: Number(updated.stock) || 0,
       },

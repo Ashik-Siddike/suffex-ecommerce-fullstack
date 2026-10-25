@@ -243,21 +243,22 @@ export default function MyOrdersPage({ onNavigate }) {
     <div className="w-full min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8 animate-fadeIn font-sans">
       
       {/* Header Banner */}
-      <div className="relative rounded-3xl bg-gradient-to-r from-[#091124] via-[#0d1734] to-[#060b18] p-6 sm:p-10 border border-cyan-500/20 shadow-2xl overflow-hidden">
+      <div className="relative rounded-3xl bg-white border border-slate-200/90 p-6 sm:p-10 shadow-sm overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-cyan-500/10 via-blue-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-xs font-semibold">
             <Package className="w-3.5 h-3.5" />
             <span>ORDER TRACKING &amp; CUSTOMER PORTAL</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white font-['Outfit'] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 font-['Outfit'] tracking-tight">
             Orders &amp;{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600">
               Live Tracking
             </span>
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
             Track real-time shipment status across Bangladesh, download official tax invoices, or sign in to seamlessly sync your purchase history.
           </p>
         </div>
@@ -269,27 +270,27 @@ export default function MyOrdersPage({ onNavigate }) {
       {isAuthenticated ? (
         <div className="space-y-6">
           {/* Account Profile Bar */}
-          <div className="rounded-2xl bg-[#070b16] border border-cyan-500/30 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+          <div className="rounded-2xl bg-white border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg font-['Outfit'] shadow-md shadow-cyan-900/40">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg font-['Outfit'] shadow-md shadow-cyan-600/20">
                 {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-white font-['Outfit']">{user?.name}</h3>
-                  <span className="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                  <h3 className="text-sm font-bold text-slate-900 font-['Outfit']">{user?.name}</h3>
+                  <span className="px-2 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                     <ShieldCheck className="w-3 h-3" />
                     <span>Verified Account</span>
                   </span>
                 </div>
-                <div className="flex items-center gap-3 text-xs text-slate-400 mt-0.5 flex-wrap">
+                <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5 flex-wrap">
                   <span className="flex items-center gap-1">
-                    <Mail className="w-3 h-3 text-slate-500" />
+                    <Mail className="w-3 h-3 text-slate-400" />
                     <span>{user?.email}</span>
                   </span>
                   {user?.phone && (
                     <span className="flex items-center gap-1">
-                      <Phone className="w-3 h-3 text-slate-500" />
+                      <Phone className="w-3 h-3 text-slate-400" />
                       <span>{user?.phone}</span>
                     </span>
                   )}
@@ -302,15 +303,15 @@ export default function MyOrdersPage({ onNavigate }) {
                 type="button"
                 onClick={fetchUserOrders}
                 disabled={isLoadingOrders}
-                className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 border border-white/10 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 disabled:opacity-50"
+                className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 disabled:opacity-50"
               >
-                <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isLoadingOrders ? "animate-spin" : ""}`} />
+                <RefreshCw className={`w-3.5 h-3.5 text-cyan-600 ${isLoadingOrders ? "animate-spin" : ""}`} />
                 <span>Refresh</span>
               </button>
               <button
                 type="button"
                 onClick={logout}
-                className="px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/25 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Log Out</span>
@@ -322,31 +323,31 @@ export default function MyOrdersPage({ onNavigate }) {
           {isLoadingOrders ? (
             <div className="space-y-4">
               {[1, 2].map((k) => (
-                <div key={k} className="p-6 rounded-3xl bg-[#070b14] border border-white/[0.08] animate-pulse space-y-4">
-                  <div className="h-5 bg-white/10 rounded w-1/4" />
-                  <div className="h-16 bg-white/5 rounded-2xl" />
-                  <div className="h-12 bg-white/5 rounded-xl" />
+                <div key={k} className="p-6 rounded-3xl bg-white border border-slate-200 animate-pulse space-y-4 shadow-sm">
+                  <div className="h-5 bg-slate-200 rounded w-1/4" />
+                  <div className="h-16 bg-slate-100 rounded-2xl" />
+                  <div className="h-12 bg-slate-100 rounded-xl" />
                 </div>
               ))}
             </div>
           ) : ordersError ? (
-            <div className="p-5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+            <div className="p-5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
               <span>{ordersError}</span>
             </div>
           ) : serverOrders.length === 0 ? (
-            <div className="rounded-3xl bg-[#090e1c] border border-white/[0.08] p-12 text-center max-w-md mx-auto space-y-4 shadow-xl">
-              <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center mx-auto text-slate-400">
-                <ShoppingBag className="w-8 h-8 text-cyan-400" />
+            <div className="rounded-3xl bg-white border border-slate-200 p-12 text-center max-w-md mx-auto space-y-4 shadow-sm">
+              <div className="w-16 h-16 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-center mx-auto text-cyan-600">
+                <ShoppingBag className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-bold text-white font-['Outfit']">No orders linked yet</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <h3 className="text-lg font-bold text-slate-900 font-['Outfit']">No orders linked yet</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
                 You haven't placed any orders with this account yet. Browse our smartphones, laptops, and audio gear!
               </p>
               <button
                 type="button"
                 onClick={handleNavToProducts}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white text-xs font-bold hover:opacity-95 transition cursor-pointer shadow-lg shadow-cyan-950/50 inline-flex items-center gap-2"
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white text-xs font-bold hover:opacity-95 transition cursor-pointer shadow-md inline-flex items-center gap-2"
               >
                 <span>Browse Catalog</span>
                 <ArrowRight className="w-4 h-4" />
@@ -354,14 +355,14 @@ export default function MyOrdersPage({ onNavigate }) {
             </div>
           ) : (
             <div className="space-y-5">
-              <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+              <div className="flex items-center justify-between text-xs text-slate-500 px-1">
                 <span>
-                  Total Orders on File: <strong className="text-white font-mono">{serverOrders.length}</strong>
+                  Total Orders on File: <strong className="text-slate-900 font-mono">{serverOrders.length}</strong>
                 </span>
                 <button
                   type="button"
                   onClick={handleNavToProducts}
-                  className="text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer inline-flex items-center gap-1 text-xs"
+                  className="text-cyan-600 hover:text-cyan-700 font-semibold cursor-pointer inline-flex items-center gap-1 text-xs"
                 >
                   <span>Shop More</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -373,70 +374,70 @@ export default function MyOrdersPage({ onNavigate }) {
                 return (
                   <div
                     key={ord.rawId || idx}
-                    className="bg-[#070b14] border border-white/[0.08] hover:border-cyan-500/30 rounded-3xl p-5 sm:p-7 space-y-5 shadow-xl transition-all duration-300"
+                    className="bg-white border border-slate-200 hover:border-cyan-500/40 rounded-3xl p-5 sm:p-7 space-y-5 shadow-sm hover:shadow-md transition-all duration-300"
                   >
                     {/* Header */}
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 pb-4 border-b border-white/[0.08]">
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 pb-4 border-b border-slate-100">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2.5 flex-wrap">
-                          <span className="font-mono text-sm font-bold text-white">
+                          <span className="font-mono text-sm font-bold text-slate-900">
                             Order #{ord.orderId}
                           </span>
-                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>{ord.status}</span>
                           </span>
                         </div>
-                        <span className="text-[11px] text-slate-400 block font-mono">
+                        <span className="text-[11px] text-slate-500 block font-mono">
                           Placed On: {ord.orderDate}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-4">
-                        <span className="font-mono text-xl font-black text-cyan-400">
+                        <span className="font-mono text-xl font-black text-cyan-700">
                           ৳{ord.grandTotal.toLocaleString()}
                         </span>
                         <button
                           type="button"
                           onClick={() => setSelectedInvoice(ord)}
-                          className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-cyan-500/10 hover:border-cyan-500/30 text-slate-200 border border-white/10 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 shadow-sm"
+                          className="px-4 py-2 rounded-xl bg-slate-50 hover:bg-cyan-50 hover:border-cyan-200 text-slate-700 border border-slate-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 shadow-xs"
                         >
                           <span>View Invoice</span>
-                          <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                          <ExternalLink className="w-3.5 h-3.5 text-cyan-600" />
                         </button>
                       </div>
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+                    <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
                             <CheckCircle2 className="w-4 h-4" />
                           </div>
                           <div>
-                            <span className="font-bold text-white block text-xs">Order Verified</span>
-                            <span className="text-[10px] text-slate-400">Database Confirmed</span>
+                            <span className="font-bold text-slate-900 block text-xs">Order Verified</span>
+                            <span className="text-[10px] text-slate-500">Database Confirmed</span>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-cyan-100 text-cyan-700 border border-cyan-200 flex items-center justify-center shrink-0">
                             <Truck className="w-4 h-4" />
                           </div>
                           <div>
-                            <span className="font-bold text-cyan-400 block text-xs">Processing &amp; Dispatch</span>
-                            <span className="text-[10px] text-slate-400">Steadfast / Pathao</span>
+                            <span className="font-bold text-cyan-700 block text-xs">Processing &amp; Dispatch</span>
+                            <span className="text-[10px] text-slate-500">Steadfast / Pathao</span>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2.5 opacity-60">
-                          <div className="w-7 h-7 rounded-full bg-white/[0.05] text-slate-400 border border-white/10 flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-400 border border-slate-200 flex items-center justify-center shrink-0">
                             <Clock className="w-4 h-4" />
                           </div>
                           <div>
-                            <span className="font-bold text-slate-300 block text-xs">Delivered</span>
-                            <span className="text-[10px] text-slate-500">Destination Hub</span>
+                            <span className="font-bold text-slate-500 block text-xs">Delivered</span>
+                            <span className="text-[10px] text-slate-400">Destination Hub</span>
                           </div>
                         </div>
                       </div>
@@ -444,16 +445,16 @@ export default function MyOrdersPage({ onNavigate }) {
 
                     {/* Items Preview */}
                     <div className="space-y-2">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block font-['Outfit']">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block font-['Outfit']">
                         Purchased Items ({ord.items?.length || 0})
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {ord.items?.map((item, i) => (
                           <div
                             key={i}
-                            className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-cyan-500/20 flex items-center gap-3 transition"
+                            className="p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-cyan-500/30 flex items-center gap-3 transition"
                           >
-                            <div className="w-12 h-12 rounded-lg bg-[#030712] border border-white/10 p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                            <div className="w-12 h-12 rounded-lg bg-white border border-slate-200 p-1 flex items-center justify-center shrink-0 overflow-hidden">
                               <img
                                 src={getItemImage(item)}
                                 alt={item.title}
@@ -461,10 +462,10 @@ export default function MyOrdersPage({ onNavigate }) {
                               />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h5 className="text-xs font-semibold text-white truncate font-['Outfit']">
+                              <h5 className="text-xs font-semibold text-slate-900 truncate font-['Outfit']">
                                 {item.title}
                               </h5>
-                              <span className="text-xs font-extrabold text-cyan-400 font-mono block mt-0.5">
+                              <span className="text-xs font-extrabold text-cyan-700 font-mono block mt-0.5">
                                 ৳{Number(item.price || 0).toLocaleString()} {item.quantity > 1 && `× ${item.quantity}`}
                               </span>
                             </div>
@@ -487,16 +488,16 @@ export default function MyOrdersPage({ onNavigate }) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
             {/* LEFT: Guest Order Tracking Card */}
-            <div className="lg:col-span-7 bg-[#070b16] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+            <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm relative overflow-hidden">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-[11px] font-bold">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-[11px] font-bold">
                   <Search className="w-3.5 h-3.5" />
                   <span>SECURE GUEST ORDER LOOKUP</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-white font-['Outfit']">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-['Outfit']">
                   Track Your Specific Order
                 </h2>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   For customer privacy, guest lookup requires both your <strong>Order ID</strong> (from SMS / checkout invoice) and your <strong>contact phone number</strong>.
                 </p>
               </div>
@@ -505,8 +506,8 @@ export default function MyOrdersPage({ onNavigate }) {
               <form onSubmit={handleGuestTrack} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5 font-['Outfit']">
-                      Order ID <span className="text-cyan-400">*</span>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5 font-['Outfit']">
+                      Order ID <span className="text-cyan-600">*</span>
                     </label>
                     <div className="relative">
                       <Package className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -515,14 +516,14 @@ export default function MyOrdersPage({ onNavigate }) {
                         placeholder="e.g. SFX-5 or 5"
                         value={guestOrderId}
                         onChange={(e) => setGuestOrderId(e.target.value)}
-                        className="w-full bg-[#030712] border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition font-mono"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 pl-10 pr-4 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition font-mono"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5 font-['Outfit']">
-                      Phone Number <span className="text-cyan-400">*</span>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5 font-['Outfit']">
+                      Phone Number <span className="text-cyan-600">*</span>
                     </label>
                     <div className="relative">
                       <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -531,15 +532,15 @@ export default function MyOrdersPage({ onNavigate }) {
                         placeholder="e.g. 01712345678"
                         value={guestPhone}
                         onChange={(e) => setGuestPhone(e.target.value)}
-                        className="w-full bg-[#030712] border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition font-mono"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 pl-10 pr-4 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition font-mono"
                       />
                     </div>
                   </div>
                 </div>
 
                 {guestTrackingError && (
-                  <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2.5 animate-shake">
-                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                  <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5 animate-shake">
+                    <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
                     <span>{guestTrackingError}</span>
                   </div>
                 )}
@@ -547,7 +548,7 @@ export default function MyOrdersPage({ onNavigate }) {
                 <button
                   type="submit"
                   disabled={guestTrackingLoading}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white text-xs font-bold hover:opacity-95 transition cursor-pointer shadow-lg shadow-cyan-950/50 flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50"
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white text-xs font-bold hover:opacity-95 transition cursor-pointer shadow-md flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50"
                 >
                   {guestTrackingLoading ? (
                     <>
@@ -565,41 +566,41 @@ export default function MyOrdersPage({ onNavigate }) {
 
               {/* Verified Tracked Order Results */}
               {trackedOrder && (
-                <div className="pt-4 border-t border-white/[0.08] space-y-4 animate-fadeIn">
-                  <div className="p-4 rounded-2xl bg-cyan-950/20 border border-cyan-500/40 space-y-3">
+                <div className="pt-4 border-t border-slate-200 space-y-4 animate-fadeIn">
+                  <div className="p-4 rounded-2xl bg-cyan-50/70 border border-cyan-200 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-bold text-white">
+                        <span className="font-mono text-sm font-bold text-slate-900">
                           Order #{trackedOrder.id || trackedOrder.orderId}
                         </span>
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-bold">
                           {trackedOrder.status || "Verified"}
                         </span>
                       </div>
-                      <span className="font-mono text-base font-extrabold text-cyan-400">
+                      <span className="font-mono text-base font-extrabold text-cyan-700">
                         ৳{Number(trackedOrder.total_amount || trackedOrder.grandTotal || 0).toLocaleString()}
                       </span>
                     </div>
 
-                    <div className="text-xs text-slate-300 space-y-1">
+                    <div className="text-xs text-slate-700 space-y-1">
                       <div>
-                        <span className="text-slate-400">Customer: </span>
+                        <span className="text-slate-500">Customer: </span>
                         <strong>{trackedOrder.customer_name || trackedOrder.customer?.fullName}</strong>
                       </div>
                       <div>
-                        <span className="text-slate-400">Shipping To: </span>
+                        <span className="text-slate-500">Shipping To: </span>
                         <span>{trackedOrder.delivery_address || trackedOrder.customer?.address} ({trackedOrder.district || trackedOrder.customer?.division})</span>
                       </div>
                     </div>
 
                     <div className="pt-2 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-400 font-mono">
+                      <span className="text-[11px] text-slate-500 font-mono">
                         Items: {trackedOrder.items?.length || 1} product(s)
                       </span>
                       <button
                         type="button"
                         onClick={() => setSelectedInvoice(normalizeOrder(trackedOrder))}
-                        className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5"
+                        className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 shadow-xs"
                       >
                         <span>View Invoice</span>
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -611,22 +612,22 @@ export default function MyOrdersPage({ onNavigate }) {
             </div>
 
             {/* RIGHT: Quick Customer Portal (Sign In / Register) */}
-            <div className="lg:col-span-5 bg-[#070b16] border border-white/[0.08] rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+            <div className="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-slate-300 text-[11px] font-bold">
-                  <Lock className="w-3.5 h-3.5 text-cyan-400" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-bold">
+                  <Lock className="w-3.5 h-3.5 text-cyan-600" />
                   <span>CUSTOMER ACCOUNT</span>
                 </div>
-                <h3 className="text-xl font-bold text-white font-['Outfit']">
+                <h3 className="text-xl font-bold text-slate-900 font-['Outfit']">
                   Unlock Full Order History
                 </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   Log in or create a quick account to automatically view all your orders without entering order IDs every time.
                 </p>
               </div>
 
               {/* Tab Selector */}
-              <div className="grid grid-cols-2 p-1 rounded-xl bg-[#030712] border border-white/10 text-xs font-semibold">
+              <div className="grid grid-cols-2 p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold">
                 <button
                   type="button"
                   onClick={() => {
@@ -635,8 +636,8 @@ export default function MyOrdersPage({ onNavigate }) {
                   }}
                   className={`py-2 rounded-lg cursor-pointer transition flex items-center justify-center gap-1.5 ${
                     authTab === "login"
-                      ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-white text-slate-900 shadow-sm border border-slate-200/80 font-bold"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <LogIn className="w-3.5 h-3.5" />
@@ -650,8 +651,8 @@ export default function MyOrdersPage({ onNavigate }) {
                   }}
                   className={`py-2 rounded-lg cursor-pointer transition flex items-center justify-center gap-1.5 ${
                     authTab === "register"
-                      ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-white text-slate-900 shadow-sm border border-slate-200/80 font-bold"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <UserPlus className="w-3.5 h-3.5" />
@@ -663,38 +664,38 @@ export default function MyOrdersPage({ onNavigate }) {
               {authTab === "login" ? (
                 <form onSubmit={handleLoginSubmit} className="space-y-3.5">
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Email Address</label>
                     <div className="relative">
-                      <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="email"
                         required
                         placeholder="you@example.com"
                         value={loginForm.email}
                         onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                        className="w-full bg-[#030712] border border-white/10 rounded-xl py-2 pl-10 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2 pl-10 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Password</label>
                     <div className="relative">
-                      <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="password"
                         required
                         placeholder="••••••••"
                         value={loginForm.password}
                         onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                        className="w-full bg-[#030712] border border-white/10 rounded-xl py-2 pl-10 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2 pl-10 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition"
                       />
                     </div>
                   </div>
 
                   {authFormError && (
-                    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
                       <span>{authFormError}</span>
                     </div>
                   )}
@@ -702,7 +703,7 @@ export default function MyOrdersPage({ onNavigate }) {
                   <button
                     type="submit"
                     disabled={authFormLoading}
-                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white text-xs font-bold hover:opacity-95 transition cursor-pointer shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white text-xs font-bold hover:opacity-95 transition cursor-pointer shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {authFormLoading ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
@@ -716,67 +717,67 @@ export default function MyOrdersPage({ onNavigate }) {
                 /* Register Form */
                 <form onSubmit={handleRegisterSubmit} className="space-y-3">
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">Full Name</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Full Name</label>
                     <div className="relative">
-                      <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="text"
                         required
                         placeholder="Ashikur Rahman"
                         value={registerForm.name}
                         onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
-                        className="w-full bg-[#030712] border border-white/10 rounded-xl py-2 pl-10 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2 pl-10 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Email Address</label>
                     <div className="relative">
-                      <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="email"
                         required
                         placeholder="you@example.com"
                         value={registerForm.email}
                         onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                        className="w-full bg-[#030712] border border-white/10 rounded-xl py-2 pl-10 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2 pl-10 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">Phone (Optional)</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Phone (Optional)</label>
                     <div className="relative">
-                      <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="text"
                         placeholder="017XXXXXXXX"
                         value={registerForm.phone}
                         onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })}
-                        className="w-full bg-[#030712] border border-white/10 rounded-xl py-2 pl-10 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition font-mono"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2 pl-10 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition font-mono"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">Password (min 6 chars)</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Password (min 6 chars)</label>
                     <div className="relative">
-                      <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="password"
                         required
                         placeholder="••••••••"
                         value={registerForm.password}
                         onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                        className="w-full bg-[#030712] border border-white/10 rounded-xl py-2 pl-10 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2 pl-10 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition"
                       />
                     </div>
                   </div>
 
                   {authFormError && (
-                    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
                       <span>{authFormError}</span>
                     </div>
                   )}
@@ -784,7 +785,7 @@ export default function MyOrdersPage({ onNavigate }) {
                   <button
                     type="submit"
                     disabled={authFormLoading}
-                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white text-xs font-bold hover:opacity-95 transition cursor-pointer shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white text-xs font-bold hover:opacity-95 transition cursor-pointer shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {authFormLoading ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
@@ -800,13 +801,13 @@ export default function MyOrdersPage({ onNavigate }) {
 
           {/* Local Device Orders (If any placed recently in this browser) */}
           {localOrders.length > 0 && (
-            <div className="space-y-4 pt-6 border-t border-white/[0.08]">
+            <div className="space-y-4 pt-6 border-t border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-white font-['Outfit']">
+                  <h3 className="text-base font-bold text-slate-900 font-['Outfit']">
                     Orders Placed on this Device ({localOrders.length})
                   </h3>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-[11px] text-slate-500">
                     Saved locally in this browser. Sign in or register above to link them across all your devices.
                   </span>
                 </div>
@@ -818,34 +819,34 @@ export default function MyOrdersPage({ onNavigate }) {
                   return (
                     <div
                       key={idx}
-                      className="bg-[#070b14] border border-white/[0.08] hover:border-cyan-500/30 rounded-2xl p-5 space-y-4 shadow-lg transition"
+                      className="bg-white border border-slate-200 hover:border-cyan-500/40 rounded-2xl p-5 space-y-4 shadow-sm hover:shadow-md transition"
                     >
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 pb-3 border-b border-white/[0.06]">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 pb-3 border-b border-slate-100">
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-bold text-white">
+                            <span className="font-mono text-xs font-bold text-slate-900">
                               Order #{normalized.orderId}
                             </span>
-                            <span className="px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300 text-[10px] font-mono">
+                            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-mono border border-slate-200">
                               Local Snapshot
                             </span>
                           </div>
-                          <span className="text-[10px] text-slate-400 font-mono">
+                          <span className="text-[10px] text-slate-500 font-mono">
                             {normalized.orderDate}
                           </span>
                         </div>
 
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-base font-extrabold text-cyan-400">
+                          <span className="font-mono text-base font-extrabold text-cyan-700">
                             ৳{normalized.grandTotal.toLocaleString()}
                           </span>
                           <button
                             type="button"
                             onClick={() => setSelectedInvoice(normalized)}
-                            className="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-cyan-500/10 hover:border-cyan-500/30 text-slate-200 border border-white/10 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5"
+                            className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-cyan-50 hover:border-cyan-200 text-slate-700 border border-slate-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5"
                           >
                             <span>Invoice</span>
-                            <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                            <ExternalLink className="w-3.5 h-3.5 text-cyan-600" />
                           </button>
                         </div>
                       </div>
@@ -855,18 +856,18 @@ export default function MyOrdersPage({ onNavigate }) {
                         {normalized.items?.map((item, i) => (
                           <div
                             key={i}
-                            className="shrink-0 flex items-center gap-2 p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]"
+                            className="shrink-0 flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200"
                           >
                             <img
                               src={getItemImage(item)}
                               alt={item.title}
-                              className="w-8 h-8 rounded-lg object-contain bg-[#030712] p-1 border border-white/10"
+                              className="w-8 h-8 rounded-lg object-contain bg-white p-1 border border-slate-200"
                             />
                             <div className="text-left">
-                              <span className="text-[11px] font-medium text-white block truncate max-w-[140px]">
+                              <span className="text-[11px] font-medium text-slate-800 block truncate max-w-[140px]">
                                 {item.title}
                               </span>
-                              <span className="text-[10px] text-cyan-400 font-mono font-bold">
+                              <span className="text-[10px] text-cyan-700 font-mono font-bold">
                                 ৳{Number(item.price || 0).toLocaleString()}
                               </span>
                             </div>
@@ -887,24 +888,24 @@ export default function MyOrdersPage({ onNavigate }) {
       {/* ============================================================== */}
       {selectedInvoice && (
         <div
-          className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+          className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn"
           onClick={() => setSelectedInvoice(null)}
         >
           <div
-            className="relative w-full max-w-2xl bg-[#060a16] border border-cyan-500/20 rounded-3xl p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto text-xs space-y-6"
+            className="relative w-full max-w-2xl bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto text-xs space-y-6 text-slate-900"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold font-['Outfit'] shadow-[0_0_15px_rgba(6,182,212,0.25)]">
+                <div className="w-8 h-8 rounded-xl bg-cyan-50 text-cyan-700 border border-cyan-200 flex items-center justify-center font-bold font-['Outfit']">
                   S
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-white font-['Outfit']">
+                  <h3 className="text-base font-extrabold text-slate-900 font-['Outfit']">
                     Official Tax Invoice
                   </h3>
-                  <span className="font-mono text-slate-400 text-[11px]">
+                  <span className="font-mono text-slate-500 text-[11px]">
                     Invoice #{selectedInvoice.orderId}
                   </span>
                 </div>
@@ -914,7 +915,7 @@ export default function MyOrdersPage({ onNavigate }) {
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="px-3 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-slate-200 transition cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer flex items-center gap-1.5 text-xs font-semibold border border-slate-200"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>Print</span>
@@ -922,7 +923,7 @@ export default function MyOrdersPage({ onNavigate }) {
                 <button
                   type="button"
                   onClick={() => setSelectedInvoice(null)}
-                  className="w-8 h-8 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+                  className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer border border-slate-200"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -930,38 +931,38 @@ export default function MyOrdersPage({ onNavigate }) {
             </div>
 
             {/* Customer Details */}
-            <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-[#030712] border border-white/[0.06]">
+            <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
               <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Customer Name</span>
-                <span className="text-xs font-bold text-white block">{selectedInvoice.customer?.fullName || "Valued Shopper"}</span>
-                <span className="text-slate-400 block mt-0.5">{selectedInvoice.customer?.phone}</span>
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Customer Name</span>
+                <span className="text-xs font-bold text-slate-900 block">{selectedInvoice.customer?.fullName || "Valued Shopper"}</span>
+                <span className="text-slate-600 block mt-0.5">{selectedInvoice.customer?.phone}</span>
                 {selectedInvoice.customer?.email && (
                   <span className="text-slate-500 block text-[10px] truncate">{selectedInvoice.customer?.email}</span>
                 )}
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Shipping Destination</span>
-                <span className="text-xs font-medium text-slate-300 block">{selectedInvoice.customer?.address || "Address on File"}</span>
-                <span className="text-slate-400 block mt-0.5">{selectedInvoice.customer?.division || "Bangladesh"}</span>
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Shipping Destination</span>
+                <span className="text-xs font-medium text-slate-700 block">{selectedInvoice.customer?.address || "Address on File"}</span>
+                <span className="text-slate-500 block mt-0.5">{selectedInvoice.customer?.division || "Bangladesh"}</span>
               </div>
             </div>
 
             {/* Item Breakdown */}
-            <div className="divide-y divide-white/[0.06] border-y border-white/[0.08]">
+            <div className="divide-y divide-slate-100 border-y border-slate-200">
               {selectedInvoice.items?.map((item, idx) => (
                 <div key={idx} className="py-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <img
                       src={getItemImage(item)}
                       alt={item.title}
-                      className="w-9 h-9 rounded-lg object-contain bg-[#030712] p-1 border border-white/10"
+                      className="w-9 h-9 rounded-lg object-contain bg-slate-50 p-1 border border-slate-200"
                     />
                     <div>
-                      <span className="font-semibold text-white block">{item.title}</span>
-                      <span className="text-[10px] text-slate-400">Qty: {item.quantity || 1}</span>
+                      <span className="font-semibold text-slate-900 block">{item.title}</span>
+                      <span className="text-[10px] text-slate-500">Qty: {item.quantity || 1}</span>
                     </div>
                   </div>
-                  <span className="font-mono font-bold text-white">
+                  <span className="font-mono font-bold text-slate-900">
                     ৳{Number(item.price || 0).toLocaleString()}
                   </span>
                 </div>
@@ -970,25 +971,25 @@ export default function MyOrdersPage({ onNavigate }) {
 
             {/* Total Financial Summary */}
             <div className="space-y-1.5 pt-2 text-xs">
-              <div className="flex justify-between text-slate-400">
+              <div className="flex justify-between text-slate-600">
                 <span>Subtotal</span>
-                <span className="font-mono text-white">৳{selectedInvoice.subtotal?.toLocaleString()}</span>
+                <span className="font-mono text-slate-900">৳{selectedInvoice.subtotal?.toLocaleString()}</span>
               </div>
               {selectedInvoice.couponDiscount > 0 && (
-                <div className="flex justify-between text-emerald-400">
+                <div className="flex justify-between text-emerald-700 font-medium">
                   <span>Coupon Savings {selectedInvoice.couponCode ? `(${selectedInvoice.couponCode})` : ""}</span>
                   <span className="font-mono">-৳{selectedInvoice.couponDiscount.toLocaleString()}</span>
                 </div>
               )}
               {selectedInvoice.shippingFee > 0 && (
-                <div className="flex justify-between text-slate-400">
+                <div className="flex justify-between text-slate-600">
                   <span>Express Shipping</span>
-                  <span className="font-mono text-white">৳{selectedInvoice.shippingFee}</span>
+                  <span className="font-mono text-slate-900">৳{selectedInvoice.shippingFee}</span>
                 </div>
               )}
-              <div className="flex justify-between items-center text-sm font-bold text-white pt-3 border-t border-white/[0.08]">
+              <div className="flex justify-between items-center text-sm font-bold text-slate-900 pt-3 border-t border-slate-200">
                 <span className="font-['Outfit']">Grand Total Paid</span>
-                <span className="font-mono text-lg text-cyan-400">৳{selectedInvoice.grandTotal?.toLocaleString()}</span>
+                <span className="font-mono text-lg text-cyan-700">৳{selectedInvoice.grandTotal?.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -997,3 +998,4 @@ export default function MyOrdersPage({ onNavigate }) {
     </div>
   );
 }
+

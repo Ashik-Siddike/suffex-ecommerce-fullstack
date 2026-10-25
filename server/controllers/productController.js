@@ -120,6 +120,10 @@ export const getAllProducts = async (req, res, next) => {
 
     const formattedProducts = result.rows.map((p) => ({
       ...p,
+      thumbnail: p.thumbnail || '',
+      image_url: p.thumbnail || '',
+      image: p.thumbnail || '',
+      images: p.thumbnail ? [p.thumbnail] : [],
       price: Number(p.price) || 0,
       stock: p.stock !== undefined ? Number(p.stock) : 99,
     }));
@@ -172,6 +176,10 @@ export const getProductById = async (req, res, next) => {
     const p = result.rows[0];
     const formattedProduct = {
       ...p,
+      thumbnail: p.thumbnail || '',
+      image_url: p.thumbnail || '',
+      image: p.thumbnail || '',
+      images: p.thumbnail ? [p.thumbnail] : [],
       price: Number(p.price) || 0,
       stock: p.stock !== undefined ? Number(p.stock) : 0,
     };
